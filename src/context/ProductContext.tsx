@@ -75,7 +75,7 @@ export const ProductsContext = ({
         console.error(error);
       }
     );
-  return () => unsubscribe;
+  return () => unsubscribe();
   }, [user?.uid]);
 
   const addProduct = (product: Product) => {
