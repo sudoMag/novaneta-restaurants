@@ -7,7 +7,7 @@ import {
 } from "firebase/firestore";
 import { db } from "../firebase/configuration";
 import Product from "../interfaces/Product";
-import { createContext, useState, useMemo, useRef, useContext } from "react";
+import { createContext, useState, useMemo, useRef, useContext, useCallback } from "react";
 import { UserContext } from "./UserContext";
 
 interface IContext {
@@ -58,7 +58,7 @@ export const ProductsContext = ({
     [user?.uid]
   );
 
-  const onChangeProducts = useMemo(() => {
+  const onChangeProducts = useCallback(() => {
     console.log("funcion");
     const unsubscribe = onSnapshot(
       collection(db, `Users/${user?.uid}/Products`),
