@@ -16,14 +16,14 @@ interface IContext {
     get: () => Promise<void>;
     cancel: () => void;
   };
-  onChangeProducts: Unsubscribe;
+  onChangeProducts: () => Unsubscribe;
   addProduct: (product: Product) => void;
 }
 
 export const Context = createContext<IContext>({
   Products: [],
   ProductsInfo: { get: async () => {}, cancel: () => {} },
-  onChangeProducts: () => {},
+  onChangeProducts: () => (() => {}),
   addProduct: (product: Product) => {},
 });
 

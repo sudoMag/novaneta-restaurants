@@ -73,7 +73,7 @@ export const PlansInfo = () => {
   useEffect(() => {
     console.log("useEffect")
     const unSubscribe = onChangeProducts();
-    return unSubscribe;
+    return unSubscribe();
   }, [onChangeProducts]);
 
   console.log("KELOKENKE")
