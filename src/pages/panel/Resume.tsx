@@ -1,7 +1,8 @@
 import styled from "styled-components";
-import Logo from "../../icons/logowhite.svg";
-import { LeftContent, RightContent } from "../../components/SplittedPanel";
-import ProductsSelectionBox from "../../components/ProductsSelectionBox";
+import { CashContextProvider } from "../../context/CashContext";
+import { Route, Routes } from "react-router-dom";
+import Cash from "./Cash";
+import Pay from "./Pay";
 
 const Container = styled.section`
   height: 100%;
@@ -13,14 +14,12 @@ const Container = styled.section`
 const Resume = () => {
   return (
     <Container>
-      <LeftContent>
-        <img src={Logo} alt="logo novaneta" />
-        <h3>Caja</h3>
-      </LeftContent>
-      <RightContent>
-        <h3>Productos</h3>
-        <ProductsSelectionBox />
-      </RightContent>
+      <CashContextProvider>
+        <Routes>
+          <Route path="/select" element={<Cash />} />
+          <Route path="/pay" element={<Pay />} />
+        </Routes>
+      </CashContextProvider>
     </Container>
   );
 };

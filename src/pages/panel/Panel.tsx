@@ -101,7 +101,7 @@ const Panel = () => {
             <OptionsContainer>
               <NovanetaIconImg src={NovanetaIcon} alt="novaneta logo"/>
               <li>
-                <RouteLink to="./cash">
+                <RouteLink to="./cash/select">
                   <img src={CashIcon} alt="cajero" />
                 </RouteLink>
               </li>
@@ -116,7 +116,7 @@ const Panel = () => {
         </Navigation>
         <RightContainer>
           <Routes>
-            <Route path="/cash" element={<Resume />} />
+            <Route path="/cash/*" element={<Resume />} />
             <Route path="new" element={<NewProduct />} />
           </Routes>
         </RightContainer>

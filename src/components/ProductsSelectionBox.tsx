@@ -1,5 +1,6 @@
 import { useContext, useEffect } from "react";
 import styled from "styled-components";
+import { CashContext } from "../context/CashContext";
 import { Context } from "../context/ProductContext";
 import useCurrencyFormat from "../hooks/useCurrencyFormat";
 
@@ -21,7 +22,7 @@ const ProductCard = styled.div`
   font-size: 0.9em;
   overflow: hidden;
   display: flex;
-  align-items: flex-end;
+  align-items: flex-start;
   flex-direction: column;
 
   & h4 {
@@ -55,6 +56,7 @@ const PricePill = styled.div`
 
 const ProductsSelectionBox = () => {
   const { Products, onChangeProducts } = useContext(Context);
+  const {addToCart} = useContext(CashContext)
   const { formatCurrency } = useCurrencyFormat()
 
   useEffect(() => {
@@ -67,7 +69,7 @@ const ProductsSelectionBox = () => {
       {Products.length !== 0
         ? Products.map((product) => {
             return (
-              <ProductCard key={product.id}>
+              <ProductCard key={product.id} onClick={() => addToCart(product)}>
                 <ImgContainer />
                 <PricePill>$ {formatCurrency( "CLP", product.price)}</PricePill>
                 <h4>{product.name}</h4>
