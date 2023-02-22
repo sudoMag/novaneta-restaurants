@@ -35,8 +35,7 @@ export const UserContextProvider = ({
     if (user) {
       getUserDataFromDB(user.uid);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
+  }, [user, getUserDataFromDB]);
 
   return (
     <UserContext.Provider value={{ user, userData }}>{children}</UserContext.Provider>

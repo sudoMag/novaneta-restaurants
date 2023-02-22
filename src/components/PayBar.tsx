@@ -30,6 +30,15 @@ const PayButton = styled(NavLink)`
   text-decoration: none;
 `;
 
+const DisableButton = styled.div`
+  padding: 10px;
+  background-color: #414141;
+  border-radius: 10px;
+  margin: 10px;
+  font-weight: bold;
+  color: #1D1E20;
+`;
+
 const PayBar = () => {
   const [totalToPay, setTotalToPay] = useState(0);
   const { cart } = useContext(CashContext);
@@ -48,7 +57,9 @@ const PayBar = () => {
       <h1>
         Total a Pagar: <span>$ {formatCurrency("CLP", totalToPay)}</span>
       </h1>
-      <PayButton to="/cash/pay">Pagar</PayButton>
+      {totalToPay === 0 ?
+      <DisableButton className="disable">Pagar</DisableButton>
+      :<PayButton to="/cash/pay">Pagar</PayButton>}
     </Container>
   );
 };

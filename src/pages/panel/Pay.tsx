@@ -4,8 +4,9 @@ import { LeftContent, RightContent } from "../../components/SplittedPanel";
 import { CashContext } from "../../context/CashContext";
 import useCurrencyFormat from "../../hooks/useCurrencyFormat";
 import Logo from "../../icons/logowhite.svg";
+import LogoBlack from "../../icons/logoblack.svg";
 import ReactToPrint from "react-to-print";
-
+import { UserContext } from "../../context/UserContext";
 
 const Invoice = styled.div`
   width: 8cm;
@@ -13,9 +14,28 @@ const Invoice = styled.div`
   background-color: white;
   justify-content: center;
   color: black;
+  font-family: monospace;
+  padding-bottom: 20px;
+
+  & hr {
+    width: 90%;
+    border: 1px solid black;
+    border-style: dashed;
+  }
 `;
 
-const InvoiceHeader = styled.div``;
+const InvoiceHeader = styled.div`
+  width: 100%;
+  margin-top: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+
+  & img {
+    width: 60%;
+  }
+`;
 
 const InvoiceTitle = styled.h4`
   color: black;
@@ -43,9 +63,11 @@ const TotalsContainer = styled.div`
   margin: 0 20px;
 `;
 
-const InvoiceTotal = styled.h4``;
+const InvoiceTotal = styled.h4`
+  margin: 2px 0;
+`;
 
-const PayWithCashButton = styled.div`
+const PrintButton = styled.div`
   padding: 10px;
   border-radius: 10px;
   background-color: #a45b17;
@@ -54,11 +76,29 @@ const PayWithCashButton = styled.div`
   cursor: pointer;
 `;
 
+const DataUser = styled.div`
+  margin-top: 15px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: start;
+
+  & h4 {
+    margin: 2px 20px;
+  }
+`;
+
 const Pay = () => {
   const [totalToPay, setTotalToPay] = useState(0);
   const { cart } = useContext(CashContext);
   const { formatCurrency } = useCurrencyFormat();
   const invoiceRef = useRef<HTMLDivElement | null>(null);
+  const { userData } = useContext(UserContext);
+
+  const getDate = () => {
+    const now = Date.now();
+    return `${new Date(now).toLocaleDateString()} ${new Date(now).getHours()}:${new Date(now).getMinutes()}`;
+  }
 
   useEffect(() => {
     let total = 0;
@@ -76,17 +116,26 @@ const Pay = () => {
         <h1>
           Total a Pagar: <span>$ {formatCurrency("CLP", totalToPay)}</span>
         </h1>
-        <ReactToPrint trigger={
-          () => <PayWithCashButton>EFECTIVO</PayWithCashButton>
-        }
-        content={() => invoiceRef.current}
-        />
-
+        {cart.length !== 0 ? (
+          <ReactToPrint
+            trigger={() => <PrintButton>IMPRIMIR</PrintButton>}
+            content={() => invoiceRef.current}
+          />
+        ) : null}
       </LeftContent>
       <RightContent>
         <h3>Factura</h3>
         <Invoice ref={(el) => (invoiceRef.current = el)}>
-          <InvoiceHeader></InvoiceHeader>
+          <InvoiceHeader>
+            <img src={LogoBlack} alt="logo novaneta" />
+            <DataUser>
+              <h4>Fecha: {getDate()}</h4>
+              <h4>Local: {userData?.name}</h4>
+              <h4>Rut: {userData?.rut}</h4>
+              <h4>Dir: {userData?.direction}</h4>
+            </DataUser>
+          </InvoiceHeader>
+          <hr />
           <InvoiceTitle>FACTURA</InvoiceTitle>
           <ItemsContainer>
             {cart.map((item) => {
@@ -98,6 +147,7 @@ const Pay = () => {
               );
             })}
           </ItemsContainer>
+          <hr />
           <TotalsContainer>
             <InvoiceTotal>TOTAL: {totalToPay}</InvoiceTotal>
           </TotalsContainer>
