@@ -15,7 +15,7 @@ const Invoice = styled.div`
   justify-content: center;
   color: black;
   font-family: monospace;
-  padding-bottom: 20px;
+  padding-bottom: 30px;
 
   & hr {
     width: 90%;
