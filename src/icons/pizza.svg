@@ -1,0 +1,32 @@
+<svg width="50" height="50" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+<circle cx="25" cy="25" r="23.5" stroke="#1D1E20" stroke-width="3"/>
+<circle cx="25" cy="25" r="19" fill="#1D1E20"/>
+<circle cx="3" cy="3" r="3" transform="matrix(1 0 0 -1 16 18)" fill="#A45B17"/>
+<circle cx="3" cy="3" r="3" transform="matrix(1 0 0 -1 16 18)" fill="#A45B17"/>
+<circle cx="3" cy="3" r="3" transform="matrix(1 0 0 -1 16 18)" fill="#A45B17"/>
+<circle cx="3" cy="3" r="3" transform="matrix(1 0 0 -1 16 18)" fill="#A45B17"/>
+<circle cx="3" cy="3" r="3" transform="matrix(1 0 0 -1 31 20)" fill="#A45B17"/>
+<circle cx="3" cy="3" r="3" transform="matrix(1 0 0 -1 31 20)" fill="#A45B17"/>
+<circle cx="3" cy="3" r="3" transform="matrix(1 0 0 -1 31 20)" fill="#A45B17"/>
+<circle cx="3" cy="3" r="3" transform="matrix(1 0 0 -1 31 20)" fill="#A45B17"/>
+<circle cx="3" cy="3" r="3" transform="matrix(1 0 0 -1 21 26)" fill="#A45B17"/>
+<circle cx="3" cy="3" r="3" transform="matrix(1 0 0 -1 21 26)" fill="#A45B17"/>
+<circle cx="3" cy="3" r="3" transform="matrix(1 0 0 -1 21 26)" fill="#A45B17"/>
+<circle cx="3" cy="3" r="3" transform="matrix(1 0 0 -1 21 26)" fill="#A45B17"/>
+<circle cx="3" cy="3" r="3" transform="matrix(1 0 0 -1 10 33)" fill="#A45B17"/>
+<circle cx="3" cy="3" r="3" transform="matrix(1 0 0 -1 10 33)" fill="#A45B17"/>
+<circle cx="3" cy="3" r="3" transform="matrix(1 0 0 -1 10 33)" fill="#A45B17"/>
+<circle cx="3" cy="3" r="3" transform="matrix(1 0 0 -1 10 33)" fill="#A45B17"/>
+<circle cx="3" cy="3" r="3" transform="matrix(1 0 0 -1 20 40)" fill="#A45B17"/>
+<circle cx="3" cy="3" r="3" transform="matrix(1 0 0 -1 20 40)" fill="#A45B17"/>
+<circle cx="3" cy="3" r="3" transform="matrix(1 0 0 -1 20 40)" fill="#A45B17"/>
+<circle cx="3" cy="3" r="3" transform="matrix(1 0 0 -1 20 40)" fill="#A45B17"/>
+<circle cx="3" cy="3" r="3" transform="matrix(1 0 0 -1 31 34)" fill="#A45B17"/>
+<circle cx="3" cy="3" r="3" transform="matrix(1 0 0 -1 31 34)" fill="#A45B17"/>
+<circle cx="3" cy="3" r="3" transform="matrix(1 0 0 -1 31 34)" fill="#A45B17"/>
+<circle cx="3" cy="3" r="3" transform="matrix(1 0 0 -1 31 34)" fill="#A45B17"/>
+<path d="M9 18.5C11.5 18.5 10 19.5 10.5 20.5C11 21.5 13.5 19 13.5 20.5C13.5 23 13 23 15 22.5C16.6 22.1 17.6667 23 18 23.5" stroke="#A45B17" stroke-linecap="round"/>
+<path d="M25.1594 9C27.097 10.5797 25.3026 10.4069 25.0582 11.498C24.8139 12.589 28.3312 12.231 27.3834 13.3936C25.8037 15.3313 25.4162 15.0153 27.2823 15.8915C28.7751 16.5925 29.0332 17.9641 28.9756 18.5622" stroke="#A45B17" stroke-linecap="round"/>
+<path d="M22.9092 30.7466C25.3902 31.0541 23.7786 31.862 24.1518 32.9159C24.525 33.9698 27.3135 31.7963 27.129 33.2849C26.8215 35.7659 26.3253 35.7044 28.3716 35.4542C30.0087 35.2541 30.9565 36.2784 31.2258 36.8156" stroke="#A45B17" stroke-linecap="round"/>
+<path d="M31 24.6154C33.1462 23.3333 32.3713 24.961 33.3134 25.5631C34.2554 26.1652 35.1196 22.7369 35.8889 24.0247C37.1709 26.1709 36.7417 26.4273 38.2023 24.9724C39.3707 23.8085 40.748 24.0342 41.2906 24.2925" stroke="#A45B17" stroke-linecap="round"/>
+</svg>

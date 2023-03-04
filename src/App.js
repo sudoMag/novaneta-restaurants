@@ -3,12 +3,12 @@ import {
   BrowserRouter as Router,
   Routes,
   Route,
-  Navigate,
 } from "react-router-dom";
 import NotFoundErrorPage from "./pages/404";
 import Login from "./pages/Login";
 import { UserContextProvider } from "./context/UserContext";
 import Panel from "./pages/panel/Panel";
+import Loading from "./pages/Loading";
 
 const GeneralStyles = createGlobalStyle`
   .main-font: {
@@ -124,10 +124,10 @@ const App = () => {
         <UserContextProvider>
           <Routes>
             {/* <Route index path="/" element={<Home />} /> */}
-            <Route path="/" element={<Navigate to="/cash/select" />} />
+            <Route index path="/" element={<Loading/>} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Login register={true} />} />
-            <Route index path="/*" element={<Panel />} />
+            <Route path="/panel/*" element={<Panel />} />
             <Route path="/*" element={<NotFoundErrorPage />} />
           </Routes>
         </UserContextProvider>

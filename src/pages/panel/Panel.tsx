@@ -1,8 +1,6 @@
-import { useContext, useEffect } from "react";
-import { NavLink, Route, Routes, useNavigate } from "react-router-dom";
+import { NavLink, Route, Routes } from "react-router-dom";
 import styled from "styled-components";
 import { ProductsContext } from "../../context/ProductContext";
-import { UserContext } from "../../context/UserContext";
 import Resume from "./Resume";
 import SignOutButton from "../../components/navbar/SingnOutButton";
 import NovanetaIcon from "../../icons/icon.svg";
@@ -84,14 +82,6 @@ const NovanetaIconImg = styled.img`
 `;
 
 const Panel = () => {
-  const { user } = useContext(UserContext);
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (user === undefined) {
-      navigate("/login");
-    }
-  }, [user, navigate]);
 
   return (
     <Container>

@@ -59,7 +59,7 @@ const PayBar = () => {
       </h1>
       {totalToPay === 0 ?
       <DisableButton className="disable">Pagar</DisableButton>
-      :<PayButton to="/cash/pay">Pagar</PayButton>}
+      :<PayButton to="/panel/cash/pay">Pagar</PayButton>}
     </Container>
   );
 };

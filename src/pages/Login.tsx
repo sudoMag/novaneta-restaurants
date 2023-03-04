@@ -153,7 +153,7 @@ const Login = ({ register }: { register?: boolean }) => {
   });
 
   if (user) {
-    redirect("/cash");
+    redirect("/panel/cash/select");
   }
 
   const onInputChangeHandler = (
