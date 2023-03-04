@@ -2,6 +2,7 @@ import styled from "styled-components";
 import { signOut } from "firebase/auth";
 import { auth } from "../../firebase/configuration";
 import buttonImg from "../../icons/exit.svg";
+import { useNavigate } from "react-router-dom";
 
 const Button = styled.img`
   display: block;
@@ -15,7 +16,21 @@ const Button = styled.img`
 `;
 
 const SignOutButton = () => {
-  return <Button onClick={() => signOut(auth)} src={buttonImg} />
-}
+  const navigate = useNavigate()
+  const SignOutAndGoToRootPage = () => {
+    signOut(auth).then(() => {
+      navigate("/");
+    });
+  };
+
+  return (
+    <Button
+      onClick={() => {
+        SignOutAndGoToRootPage();
+      }}
+      src={buttonImg}
+    />
+  );
+};
 
 export default SignOutButton;

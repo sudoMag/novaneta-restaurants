@@ -50,7 +50,7 @@ const Loading = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (user === undefined) {
+    if (user === undefined && nextReady.animReady) {
       navigate("/login");
     } else if (
       userData !== undefined &&
