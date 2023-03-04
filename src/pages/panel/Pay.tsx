@@ -70,7 +70,7 @@ const InvoiceTotal = styled.h4`
 const PrintButton = styled.div`
   padding: 10px;
   border-radius: 10px;
-  background-color: #a45b17;
+  background-color: var(--bg-main-color);
   color: #1d1e20;
   font-weight: bold;
   cursor: pointer;

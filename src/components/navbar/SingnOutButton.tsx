@@ -7,11 +7,12 @@ import { useNavigate } from "react-router-dom";
 const Button = styled.img`
   display: block;
   text-align: center;
-  padding: 0.8em 0.8em;
   cursor: pointer;
   transition-duration: 300ms;
+  width: 38px;
 
   &:hover {
+
   }
 `;
 

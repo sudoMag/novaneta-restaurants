@@ -21,7 +21,7 @@ const Container = styled.section`
 
 const PayButton = styled(NavLink)`
   padding: 10px;
-  background-color: #a45b17;
+  background-color: var(--bg-main-color);
   border-radius: 10px;
   margin: 10px;
   font-weight: bold;

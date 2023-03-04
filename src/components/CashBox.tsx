@@ -32,9 +32,9 @@ export const ItemCard = styled.div`
   width: 90%;
   max-width: 600px;
   border-radius: 20px;
-  border: 1px solid gray;
+  border: solid 1px #383838;
   padding: 5px;
-  background: #444048;
+  background-color: #112030;
   display: flex;
   align-items: flex-start;
   justify-content: flex-start;
@@ -84,11 +84,11 @@ const ButtonsContainer = styled.div`
   }
 
   & #button-increase {
-    background-color: #ff00d4;
+    background-color: #661358;
   }
 
   & #button-reduce {
-    background-color: #a45b17;
+    background-color: var(--bg-main-color);
   }
 `;
 
@@ -98,7 +98,7 @@ const TrashImage = styled.img`
 
 const DeleteButton = styled.div`
   padding: 8px;
-  background-color: #a45b17;
+  background-color: var(--bg-main-color);
   display: flex;
   border-radius: 15px;
   cursor: pointer;

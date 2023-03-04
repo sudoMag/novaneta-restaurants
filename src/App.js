@@ -1,14 +1,11 @@
 import styled, { createGlobalStyle } from "styled-components";
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-} from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import NotFoundErrorPage from "./pages/404";
 import Login from "./pages/Login";
 import { UserContextProvider } from "./context/UserContext";
 import Panel from "./pages/panel/Panel";
 import Loading from "./pages/Loading";
+import { ThemeContextProvider } from "./context/ThemeContext";
 
 const GeneralStyles = createGlobalStyle`
   .main-font: {
@@ -108,7 +105,7 @@ const GeneralStyles = createGlobalStyle`
 const MainContainer = styled.div`
   min-height: 100vh;
   max-width: 100%;
-  background-color: #1D1E20;
+  background-color: #1d1e20;
   color: white;
   display: flex;
   flex-direction: column;
@@ -120,18 +117,19 @@ const App = () => {
   return (
     <MainContainer id="App">
       <GeneralStyles theme={theme} />
-      <Router>
-        <UserContextProvider>
-          <Routes>
-            {/* <Route index path="/" element={<Home />} /> */}
-            <Route index path="/" element={<Loading/>} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Login register={true} />} />
-            <Route path="/panel/*" element={<Panel />} />
-            <Route path="/*" element={<NotFoundErrorPage />} />
-          </Routes>
-        </UserContextProvider>
-      </Router>
+      <ThemeContextProvider>
+        <Router>
+          <UserContextProvider>
+            <Routes>
+              <Route index path="/" element={<Loading />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Login register={true} />} />
+              <Route path="/panel/*" element={<Panel />} />
+              <Route path="/*" element={<NotFoundErrorPage />} />
+            </Routes>
+          </UserContextProvider>
+        </Router>
+      </ThemeContextProvider>
     </MainContainer>
   );
 };

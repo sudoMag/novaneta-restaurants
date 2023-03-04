@@ -21,13 +21,9 @@ export const PlanCard = styled.div`
   width: 80vw;
   max-width: 400px;
   border-radius: 20px;
-  border: 1px solid gray;
+  border: solid 1px #383838;
   padding: 20px;
-  background: #444048;
-
-  &.premium-plan {
-    background: linear-gradient(60deg, #00ffd0 10%, #5327f3 100%);
-  }
+  background-color: #112030;
 `;
 
 const PlansContainer = styled.div`
@@ -58,25 +54,10 @@ export const PlanDescription = styled.article``;
 export const PlansInfo = () => {
   const { Products, onChangeProducts } = useContext(Context);
 
-  /* useEffect(() => {
-    const info = ProductsInfo;
-
-    if (Products.length === 0) {
-      info.get();
-    }
-
-    return () => {
-      info.cancel();
-    };
-  }, [ProductsInfo, Products]); */
-
   useEffect(() => {
-    console.log("useEffect")
     const unSubscribe = onChangeProducts();
     return unSubscribe;
   }, [onChangeProducts]);
-
-  console.log("KELOKENKE")
 
   return (
     <Container className="mobile-change center-items">

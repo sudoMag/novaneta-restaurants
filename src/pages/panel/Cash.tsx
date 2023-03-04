@@ -5,7 +5,7 @@ import PayBar from "../../components/PayBar";
 import ProductsSelectionBox from "../../components/ProductsSelectionBox";
 import { LeftContent, RightContent } from "../../components/SplittedPanel";
 import { UserContext } from "../../context/UserContext";
-import Logo from "../../icons/logowhite.svg"
+import Logo from "../../icons/logowhite.svg";
 
 const HeadBarLeft = styled.div`
   width: 100%;
@@ -26,17 +26,21 @@ const HeadBarRight = styled.div`
 `;
 
 const Cash = () => {
-  const {userData} = useContext(UserContext);
+  const { userData } = useContext(UserContext);
 
   return (
     <>
       <LeftContent>
-        <HeadBarLeft><img id="logo" src={Logo} alt="logo novaneta" /></HeadBarLeft>
+        <HeadBarLeft>
+          <img id="logo" src={Logo} alt="logo novaneta" />
+        </HeadBarLeft>
         <CashBox />
         <PayBar />
       </LeftContent>
       <RightContent>
-        <HeadBarRight><h3>{userData?.name}</h3></HeadBarRight>
+        <HeadBarRight>
+          <h3>{userData?.name}</h3>
+        </HeadBarRight>
         <h3>Productos</h3>
         <ProductsSelectionBox />
       </RightContent>

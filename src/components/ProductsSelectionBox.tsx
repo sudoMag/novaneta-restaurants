@@ -15,8 +15,8 @@ const Container = styled.section`
 const ProductCard = styled.div`
   width: 120px;
   height: 155px;
-  background-color: #444048;
-  border: solid 1px gray;
+  background-color: #112030;
+  border: solid 1px #383838;
   border-radius: 30px;
   margin: 5px;
   font-size: 0.9em;

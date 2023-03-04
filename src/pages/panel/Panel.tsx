@@ -5,8 +5,10 @@ import Resume from "./Resume";
 import SignOutButton from "../../components/navbar/SingnOutButton";
 import NovanetaIcon from "../../icons/icon.svg";
 import CashIcon from "../../icons/cash.svg";
-import NewProductIcon from "../../icons/plus.svg"
+import NewProductIcon from "../../icons/plus.svg";
+import ConfigIcon from "../../icons/config.svg";
 import NewProduct from "./NewProduct";
+import Config from "./Config";
 
 const Container = styled.section`
   display: flex;
@@ -15,7 +17,7 @@ const Container = styled.section`
 
 const Navigation = styled.nav`
   width: 60px;
-  background-color: #a45b17;
+  background-color: var(--bg-main-color);
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -67,7 +69,7 @@ const RightContainer = styled.main`
 `;
 
 const NavSignOutButton = styled(SignOutButton)`
-  bottom: 10px;
+  margin: 5px 0;
 `;
 
 const OptionsContainer = styled.div`
@@ -81,15 +83,25 @@ const NovanetaIconImg = styled.img`
   margin: 10px 0;
 `;
 
-const Panel = () => {
+const BottonOptionsContainer = styled.section`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: end;
+`;
 
+const ConfigButton = styled.img`
+  margin: 10px 0;
+`;
+
+const Panel = () => {
   return (
     <Container>
       <ProductsContext>
         <Navigation>
           <ul>
             <OptionsContainer>
-              <NovanetaIconImg src={NovanetaIcon} alt="novaneta logo"/>
+              <NovanetaIconImg src={NovanetaIcon} alt="novaneta logo" />
               <li>
                 <RouteLink to="./cash/select">
                   <img src={CashIcon} alt="cajero" />
@@ -101,13 +113,21 @@ const Panel = () => {
                 </RouteLink>
               </li>
             </OptionsContainer>
-            <NavSignOutButton />
+            <BottonOptionsContainer>
+              <li>
+                <RouteLink to="./config/theme">
+                  <ConfigButton src={ConfigIcon} alt="config" />
+                </RouteLink>
+              </li>
+              <NavSignOutButton />
+            </BottonOptionsContainer>
           </ul>
         </Navigation>
         <RightContainer>
           <Routes>
             <Route path="/cash/*" element={<Resume />} />
             <Route path="new" element={<NewProduct />} />
+            <Route path="config/*" element={<Config />} />
           </Routes>
         </RightContainer>
       </ProductsContext>
