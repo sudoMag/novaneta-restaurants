@@ -86,7 +86,6 @@ export const DeviceContextProvider = ({
         deviceType,
       })
     );
-    console.log("probando");
   };
 
   const nextDirectToggle = () => {
