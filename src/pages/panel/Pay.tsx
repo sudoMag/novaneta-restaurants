@@ -97,8 +97,10 @@ const Pay = () => {
 
   const getDate = () => {
     const now = Date.now();
-    return `${new Date(now).toLocaleDateString()} ${new Date(now).getHours()}:${new Date(now).getMinutes()}`;
-  }
+    return `${new Date(now).toLocaleDateString()} ${new Date(
+      now
+    ).getHours()}:${new Date(now).getMinutes()}`;
+  };
 
   useEffect(() => {
     let total = 0;

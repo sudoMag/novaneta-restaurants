@@ -1,5 +1,6 @@
 import { useContext } from "react";
 import styled from "styled-components";
+import CartsBar from "../../components/CartsBar";
 import CashBox from "../../components/CashBox";
 import PayBar from "../../components/PayBar";
 import ProductsSelectionBox from "../../components/ProductsSelectionBox";
@@ -34,6 +35,7 @@ const Cash = () => {
         <HeadBarLeft>
           <img id="logo" src={Logo} alt="logo novaneta" />
         </HeadBarLeft>
+        <CartsBar />
         <CashBox />
         <PayBar />
       </LeftContent>

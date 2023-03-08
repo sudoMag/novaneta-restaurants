@@ -11,6 +11,10 @@ const Container = styled.section`
   align-items: center;
   overflow-y: auto;
 
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
   & h3 {
     margin: 0 0 5px;
   }
@@ -47,6 +51,9 @@ export const PlanTitle = styled.h2`
   justify-content: space-between;
   align-items: center;
   line-height: 1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
 `;
 
 export const PlanDescription = styled.article``;
@@ -69,8 +76,9 @@ export const PlansInfo = () => {
               key={Product.name}
             >
               <PlanTitle>
-                {Product.name} <PlanProduct>$ {Product.price}</PlanProduct>
+                {Product.name}
               </PlanTitle>
+              <PlanProduct>$ {Product.price}</PlanProduct>
               <PlanDescription>{Product.description}</PlanDescription>
             </PlanCard>
           );

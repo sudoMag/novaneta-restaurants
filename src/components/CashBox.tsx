@@ -1,11 +1,12 @@
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import styled from "styled-components";
 import { CashContext } from "../context/CashContext";
 import useCurrencyFormat from "../hooks/useCurrencyFormat";
 import TrashImg from "../icons/trash.svg";
 import IncreaseIcon from "../icons/increase-button.svg";
 import ReduceIcon from "../icons/reduce-button.svg";
-
+import Scale from "./animations/Scale";
+import useScroll from "../hooks/useScroll";
 
 const Container = styled.section`
   display: flex;
@@ -14,6 +15,12 @@ const Container = styled.section`
   overflow-y: auto;
   height: 100%;
   width: 100%;
+  scroll-behavior: smooth;
+  padding-top: 10px;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 
   & h3 {
     margin: 0 0 5px;
@@ -38,6 +45,7 @@ export const ItemCard = styled.div`
   display: flex;
   align-items: flex-start;
   justify-content: flex-start;
+  animation: ${Scale} 200ms ease-in-out;
 
   & h4 {
     margin: 5px;
@@ -59,6 +67,7 @@ const QuantityPill = styled.div`
   border-radius: 15px;
   margin-top: -20px;
   margin-left: -20px;
+  animation: ${Scale} 200ms ease-in-out;
 `;
 
 const TotalAndButtons = styled.div`
@@ -108,9 +117,14 @@ const CashBox = () => {
   const { cart, increaseQuantity, reduceQuantity, removeToCart } =
     useContext(CashContext);
   const { formatCurrency } = useCurrencyFormat();
+  const { ScrollRef, scrollToTop } = useScroll();
+
+  useEffect(() => {
+    scrollToTop();
+  }, [cart, scrollToTop]);
 
   return (
-    <Container>
+    <Container ref={(el) => (ScrollRef.current = el)}>
       {cart.map((item) => {
         return (
           <ItemCard key={item.product.id}>
@@ -122,8 +136,8 @@ const CashBox = () => {
               </NameAndPrice>
               <TotalAndButtons>
                 <TotalPrice>
-                  Total:
-                  $ {formatCurrency("CLP", item.product.price * item.quantity)}
+                  Total: ${" "}
+                  {formatCurrency("CLP", item.product.price * item.quantity)}
                 </TotalPrice>
                 <ButtonsContainer>
                   <img

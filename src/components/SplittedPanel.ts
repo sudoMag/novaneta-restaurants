@@ -5,13 +5,15 @@ export const LeftContent = styled.div`
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  width: 100%;
+  width: 50%;
+  overflow: hidden;
 `;
 
 export const RightContent = styled.div`
-  width: 100%;
+  width: 50%;
   display: flex;
   justify-content: center;
   align-items: center;
   flex-direction: column;
+  overflow: hidden;
 `;

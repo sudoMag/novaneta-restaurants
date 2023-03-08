@@ -6,29 +6,13 @@ import { UserContextProvider } from "./context/UserContext";
 import Panel from "./pages/panel/Panel";
 import Loading from "./pages/Loading";
 import { ThemeContextProvider } from "./context/ThemeContext";
+import Devices from "./pages/Devices";
+import { DeviceContextProvider } from "./context/DeviceContext";
 
 const GeneralStyles = createGlobalStyle`
   .main-font: {
     font-family: 'Secular One', sans-serif;
   }
-
-  ${(props) => {
-    if (props.theme === "light") {
-      return `
-        html {
-          --font-color: #2e2e2e;
-          --font-color-2: gray;
-          --font-color-ngtv: #b3b3b3;
-          --bg-color-1: white;
-          --bg-color-2: #ffffff;
-          --bg-color-3: #e0e0e0;
-          --bg-color-4: #e2e2e2;
-          --bg-color-5: #edeff3;
-          --bg-color-6: #d0d0d0;
-        }
-        `;
-    }
-  }}
 
   @media only screen and (max-width: 800px) {
     .mobile-change {
@@ -113,20 +97,22 @@ const MainContainer = styled.div`
 `;
 
 const App = () => {
-  const theme = "light";
   return (
     <MainContainer id="App">
-      <GeneralStyles theme={theme} />
+      <GeneralStyles />
       <ThemeContextProvider>
         <Router>
           <UserContextProvider>
-            <Routes>
-              <Route index path="/" element={<Loading />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Login register={true} />} />
-              <Route path="/panel/*" element={<Panel />} />
-              <Route path="/*" element={<NotFoundErrorPage />} />
-            </Routes>
+            <DeviceContextProvider>
+              <Routes>
+                <Route index path="/" element={<Loading />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Login register={true} />} />
+                <Route path="/devices" element={<Devices />} />
+                <Route path="/panel/*" element={<Panel />} />
+                <Route path="/*" element={<NotFoundErrorPage />} />
+              </Routes>
+            </DeviceContextProvider>
           </UserContextProvider>
         </Router>
       </ThemeContextProvider>

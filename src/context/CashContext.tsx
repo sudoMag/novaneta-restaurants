@@ -1,10 +1,13 @@
 import { createContext, useState } from "react";
+import CartToClient from "../interfaces/CartToClient";
 import Product from "../interfaces/Product";
 import ProductInCart from "../interfaces/ProductInCart";
 
 interface IContext {
   cart: ProductInCart[];
+  cartToClient: CartToClient[];
   addToCart: (product: Product) => void;
+  addToClientCart: (cart: ProductInCart[], name: string) => void;
   removeToCart: (productID: string) => void;
   increaseQuantity: (productID: string) => void;
   reduceQuantity: (productID: string) => void;
@@ -12,7 +15,9 @@ interface IContext {
 
 export const CashContext = createContext<IContext>({
   cart: [],
+  cartToClient: [],
   addToCart: (product: Product) => {},
+  addToClientCart: (cart: ProductInCart[], name: string) => {},
   removeToCart: (productID: string) => {},
   increaseQuantity: (productID: string) => {},
   reduceQuantity: (productID: string) => {},
@@ -24,6 +29,7 @@ export const CashContextProvider = ({
   children: JSX.Element | JSX.Element[];
 }) => {
   const [cart, setCart] = useState<ProductInCart[]>([]);
+  const [cartToClient, setCartToClient] = useState<CartToClient[]>([]);
 
   const addToCart = (product: Product) => {
     const machProductIndex = cart.findIndex(
@@ -39,15 +45,17 @@ export const CashContextProvider = ({
     }
   };
 
+  const addToClientCart = (cart: ProductInCart[], name: string) => {
+    setCartToClient([
+      ...cartToClient,
+      {
+        name: name,
+        products: cart,
+      },
+    ]);
+  };
+
   const removeToCart = (productID: string) => {
-    /* let cartWithoutProduct: ProductInCart[] = [];
-
-    cart.forEach((item) => {
-      if (item.product.id !== ProductID) {
-        cartWithoutProduct.push(item);
-      }
-    }); */
-
     let cartWithoutProduct = cart.filter(
       (item) => item.product.id !== productID
     );
@@ -77,7 +85,15 @@ export const CashContextProvider = ({
 
   return (
     <CashContext.Provider
-      value={{ cart, addToCart, removeToCart, increaseQuantity, reduceQuantity }}
+      value={{
+        cart,
+        cartToClient,
+        addToCart,
+        addToClientCart,
+        removeToCart,
+        increaseQuantity,
+        reduceQuantity,
+      }}
     >
       {children}
     </CashContext.Provider>

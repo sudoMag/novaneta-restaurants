@@ -37,7 +37,10 @@ const ConfigNavigation = styled(LeftContent)`
   }
 `;
 
-const CustomRightContent = styled(RightContent)``;
+const CustomRightContent = styled(RightContent)`
+  width: 100%;
+  overflow: unset;
+`;
 
 const Config = () => {
   return (
