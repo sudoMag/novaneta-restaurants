@@ -9,6 +9,7 @@ import NewProductIcon from "../../icons/plus.svg";
 import ConfigIcon from "../../icons/config.svg";
 import NewProduct from "./NewProduct";
 import Config from "./Config";
+import { CashContextProvider } from "../../context/CashContext";
 
 const Container = styled.section`
   display: flex;
@@ -124,11 +125,13 @@ const Panel = () => {
           </ul>
         </Navigation>
         <RightContainer>
-          <Routes>
-            <Route path="/cash/*" element={<Resume />} />
-            <Route path="new" element={<NewProduct />} />
-            <Route path="config/*" element={<Config />} />
-          </Routes>
+          <CashContextProvider>
+            <Routes>
+              <Route path="/cash/*" element={<Resume />} />
+              <Route path="new" element={<NewProduct />} />
+              <Route path="config/*" element={<Config />} />
+            </Routes>
+          </CashContextProvider>
         </RightContainer>
       </ProductsContext>
     </Container>

@@ -4,6 +4,8 @@ import CustomNavLink from "../../components/CustomNavLink";
 import { LeftContent, RightContent } from "../../components/SplittedPanel";
 import Logo from "../../icons/logowhite.svg";
 import Appearance from "./Config Pages/Appearance";
+import Profiles from "./Config Pages/Profiles";
+import Tables from "./Config Pages/Tables";
 
 const Container = styled.section`
   width: 100%;
@@ -49,8 +51,9 @@ const Config = () => {
         <img id="logo" src={Logo} alt="logo novaneta" />
         <ul>
           <CustomNavLink to="theme">Apariencia</CustomNavLink>
+          <CustomNavLink to="tables">Mesas</CustomNavLink>
           <CustomNavLink to="invoice">Factura</CustomNavLink>
-          <CustomNavLink to="devices">Dispositivos</CustomNavLink>
+          <CustomNavLink to="profiles">Perfiles</CustomNavLink>
           <CustomNavLink to="acount">Cuenta</CustomNavLink>
         </ul>
       </ConfigNavigation>
@@ -58,7 +61,8 @@ const Config = () => {
         <Routes>
           <Route path="/theme" element={<Appearance />} />
           <Route path="/invoice" element={<h1>Factura</h1>} />
-          <Route path="/devices" element={<h1>Dispositivos</h1>} />
+          <Route path="/tables" element={<Tables />} />
+          <Route path="/profiles" element={<Profiles />} />
           <Route path="/acount" element={<h1>Cuenta</h1>} />
         </Routes>
       </CustomRightContent>

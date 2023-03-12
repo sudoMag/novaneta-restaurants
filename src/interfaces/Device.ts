@@ -1,7 +1,9 @@
 interface Device {
+  id: string;
   name: string;
   deviceType: string;
-  role?: string;
+  profileImg: string;
+  role: string;
 }
 
 export default Device;

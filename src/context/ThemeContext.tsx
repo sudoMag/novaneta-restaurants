@@ -12,23 +12,29 @@ interface IProps {
 
 const NovanetaTheme = `
   --bg-main-color: #a45b17;
+  --bg-gradient-color: #46280c;
   `;
 
 const BlueTheme = `
   --bg-main-color: #460de2;
+  --bg-gradient-color: #1c0f3f;
 `;
 
 const PinkTheme = `
   --bg-main-color: #c50d59;
+  --bg-gradient-color: #530f29;
 `;
 
 const GreenTheme = `
   --bg-main-color: #05641d;
+  --bg-gradient-color: #052005;
 `;
 
 
 const GeneralStyles = createGlobalStyle<IProps>`
   html {
+    --bg-color: #1D1E20;
+    --font-color: white;
     ${({ theme }) => {
       switch (theme) {
         case "novaneta":

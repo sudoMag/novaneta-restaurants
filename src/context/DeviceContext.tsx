@@ -1,4 +1,11 @@
-import { getDocs, collection, addDoc } from "firebase/firestore";
+import {
+  getDocs,
+  collection,
+  addDoc,
+  doc,
+  getDoc,
+  DocumentData,
+} from "firebase/firestore";
 import { db } from "../firebase/configuration";
 import {
   createContext,
@@ -10,16 +17,19 @@ import {
 } from "react";
 import Device from "../interfaces/Device";
 import { UserContext } from "./UserContext";
+import { useNavigate } from "react-router-dom";
 
 interface IContext {
   devices: Device[];
-  thisDevice: Device | undefined;
+  thisDevice: DocumentData | undefined;
+  thisDeviceInLocalStorage: Device | undefined;
+  setDeviceInLocalStorage: (device: Device) => void;
   getDevices: {
     get: () => Promise<void>;
     cancel: () => void;
   };
   addDevice: (device: Device) => void;
-  setDevice: (device: Device) => void;
+  newDevice: (device: Device) => void;
   nextDirect: boolean;
   nextDirectToggle: () => void;
 }
@@ -27,12 +37,14 @@ interface IContext {
 export const DeviceContext = createContext<IContext>({
   devices: [],
   thisDevice: undefined,
+  thisDeviceInLocalStorage: undefined,
+  setDeviceInLocalStorage: (device: Device) => {},
   getDevices: {
     get: async () => {},
     cancel: () => {},
   },
   addDevice: (device: Device) => {},
-  setDevice: (device: Device) => {},
+  newDevice: (device: Device) => {},
   nextDirect: false,
   nextDirectToggle: () => {},
 });
@@ -42,10 +54,16 @@ export const DeviceContextProvider = ({
 }: {
   children: JSX.Element | JSX.Element[];
 }) => {
+  const navigate = useNavigate();
   const { user } = useContext(UserContext);
   const cancelled = useRef(false);
   const [devices, setDevices] = useState<Device[]>([]);
-  const [thisDevice, setThisDevice] = useState<Device | undefined>(undefined);
+  const [thisDeviceInLocalStorage, setThisDeviceInLocalStorage] = useState<
+    Device | undefined
+  >(undefined);
+  const [thisDevice, setThisDevice] = useState<DocumentData | undefined>(
+    undefined
+  );
   const [nextDirect, setNextDirect] = useState(false);
 
   const getDevices = useMemo(
@@ -56,8 +74,8 @@ export const DeviceContextProvider = ({
           collection(db, `Users/${user?.uid}/Devices`)
         );
         const info = devicesSnapshot.docs.map((device) => {
-          const { name, deviceType } = device.data();
-          return { name, deviceType };
+          const { name, deviceType, role, profileImg } = device.data();
+          return { id: device.id, name, deviceType, role, profileImg };
         });
         if (!cancelled.current) {
           setDevices(info);
@@ -70,22 +88,54 @@ export const DeviceContextProvider = ({
     [user?.uid]
   );
 
+  const bringProfileInfo = useMemo(
+    () => ({
+      get: async (profileId: string) => {
+        cancelled.current = false;
+        const deviceSnapshot = await getDoc(
+          doc(db, `Users/${user?.uid}/Devices/${profileId}`)
+        );
+        const info = deviceSnapshot.data();
+        if (!cancelled.current) {
+          setThisDevice({ ...info, id: deviceSnapshot.id });
+        }
+      },
+      cancel: () => {
+        cancelled.current = true;
+      },
+    }),
+    [user?.uid]
+  );
+
   const addDevice = (device: Device) => {
     if (user) {
-      addDoc(collection(db, `Users/${user?.uid}/Devices`), device);
+      return addDoc(collection(db, `Users/${user?.uid}/Devices`), device).then(
+        (doc) => {
+          return doc.id;
+        }
+      );
     }
   };
 
-  const setDevice = (device: Device) => {
-    const { name, deviceType } = device;
-    addDevice(device);
+  const setDeviceInLocalStorage = (device: Device) => {
+    const { id, name, deviceType, profileImg } = device;
     localStorage.setItem(
       "device",
       JSON.stringify({
+        id,
         name,
         deviceType,
+        profileImg,
       })
     );
+    setThisDevice({ ...device, id: id });
+  };
+
+  const newDevice = (device: Device) => {
+    addDevice(device)?.then((id) => {
+      setDeviceInLocalStorage({ ...device, id: id });
+      navigate("/panel/cash/select");
+    });
   };
 
   const nextDirectToggle = () => {
@@ -93,15 +143,30 @@ export const DeviceContextProvider = ({
   };
 
   useEffect(() => {
-    getDevices.get();
+    if (!nextDirect) {
+      getDevices.get();
+      return getDevices.cancel;
+    } else if (nextDirect && thisDeviceInLocalStorage) {
+      bringProfileInfo.get(thisDeviceInLocalStorage.id);
+      return bringProfileInfo.cancel;
+    }
+  }, [bringProfileInfo, getDevices, nextDirect, thisDeviceInLocalStorage]);
 
-    return getDevices.cancel();
-  }, [getDevices])
+  useEffect(() => {
+    if (devices.length !== 0 && thisDeviceInLocalStorage) {
+      const device = devices.find(
+        (item) => item.id === thisDeviceInLocalStorage.id
+      );
+      if (device) {
+        setThisDevice(device);
+      }
+    }
+  }, [devices, setThisDevice, thisDeviceInLocalStorage]);
 
   useEffect(() => {
     const item = localStorage.getItem("device");
     if (item) {
-      setThisDevice(JSON.parse(item));
+      setThisDeviceInLocalStorage(JSON.parse(item));
     }
   }, []);
 
@@ -110,9 +175,11 @@ export const DeviceContextProvider = ({
       value={{
         devices,
         thisDevice,
+        thisDeviceInLocalStorage,
+        setDeviceInLocalStorage,
         getDevices,
         addDevice,
-        setDevice,
+        newDevice,
         nextDirect,
         nextDirectToggle,
       }}

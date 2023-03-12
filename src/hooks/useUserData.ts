@@ -8,7 +8,6 @@ const useUserData = () => {
   const getUserDataFromDB = useCallback(async (userID: string) => {
     const snapshot = await getDoc(doc(db, `Users/${userID}`));
     const userDoc = snapshot.data();
-    console.log(userDoc);
     setUserData(userDoc);
   }, [])
 

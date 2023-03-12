@@ -90,6 +90,7 @@ const MainContainer = styled.div`
   min-height: 100vh;
   max-width: 100%;
   background-color: #1d1e20;
+  background: linear-gradient(190deg, var(--bg-gradient-color) -30%, rgba(29,30,32,1) 100%);
   color: white;
   display: flex;
   flex-direction: column;
@@ -108,7 +109,8 @@ const App = () => {
                 <Route index path="/" element={<Loading />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Login register={true} />} />
-                <Route path="/devices" element={<Devices />} />
+                <Route path="/profiles" element={<Devices profiles={true}/>} />
+                <Route path="/new-profile" element={<Devices profiles={false}/>} />
                 <Route path="/panel/*" element={<Panel />} />
                 <Route path="/*" element={<NotFoundErrorPage />} />
               </Routes>

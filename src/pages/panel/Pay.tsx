@@ -7,6 +7,7 @@ import Logo from "../../icons/logowhite.svg";
 import LogoBlack from "../../icons/logoblack.svg";
 import ReactToPrint from "react-to-print";
 import { UserContext } from "../../context/UserContext";
+import ProductInCart from "../../interfaces/ProductInCart";
 
 const Invoice = styled.div`
   width: 8cm;
@@ -90,7 +91,8 @@ const DataUser = styled.div`
 
 const Pay = () => {
   const [totalToPay, setTotalToPay] = useState(0);
-  const { cart } = useContext(CashContext);
+  const [cartInView, setCartInView] = useState<ProductInCart[]>([]);
+  const { cart, cartToClient, cartId } = useContext(CashContext);
   const { formatCurrency } = useCurrencyFormat();
   const invoiceRef = useRef<HTMLDivElement | null>(null);
   const { userData } = useContext(UserContext);
@@ -104,11 +106,26 @@ const Pay = () => {
 
   useEffect(() => {
     let total = 0;
-    cart.forEach((item) => {
-      total += item.product.price * item.quantity;
-    });
-    setTotalToPay(total);
-  }, [cart]);
+    if (cartId === undefined) {
+      cart.forEach((item) => {
+        total += item.product.price * item.quantity;
+      });
+      setTotalToPay(total);
+    } else {
+      cartToClient[cartId].products.forEach((item) => {
+        total += item.product.price * item.quantity;
+      });
+      setTotalToPay(total);
+    }
+  }, [cart, cartId, cartToClient]);
+
+  useEffect(() => {
+    if (cartId === undefined) {
+      setCartInView(cart);
+    } else {
+      setCartInView(cartToClient[cartId].products);
+    }
+  }, [cart, cartId, cartToClient]);
 
   return (
     <>
@@ -118,7 +135,7 @@ const Pay = () => {
         <h1>
           Total a Pagar: <span>$ {formatCurrency("CLP", totalToPay)}</span>
         </h1>
-        {cart.length !== 0 ? (
+        {cartInView.length !== 0 ? (
           <ReactToPrint
             trigger={() => <PrintButton>IMPRIMIR</PrintButton>}
             content={() => invoiceRef.current}
@@ -140,7 +157,7 @@ const Pay = () => {
           <hr />
           <InvoiceTitle>FACTURA</InvoiceTitle>
           <ItemsContainer>
-            {cart.map((item) => {
+            {cartInView.map((item) => {
               return (
                 <Item key={item.product.id}>
                   x{item.quantity} {item.product.name}

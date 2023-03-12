@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState, ChangeEvent } from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 import { DeviceContext } from "../context/DeviceContext";
 import { isDesktop, isMobile } from "react-device-detect";
 import { useNavigate } from "react-router-dom";
@@ -7,6 +7,8 @@ import DesktopIcon from "../icons/pcicon.svg";
 import MobileIcon from "../icons/mobileicon.svg";
 import OpacityAndTranslate from "../components/animations/OpacityAndTranslate";
 import Opacity from "../components/animations/Opacity";
+import ScaleZoom from "../components/animations/ScaleZoom";
+import Device from "../interfaces/Device";
 
 const Container = styled.div`
   display: flex;
@@ -15,7 +17,14 @@ const Container = styled.div`
   flex-direction: column;
 `;
 
-const DevicesContainer = styled.div``;
+const DevicesContainer = styled.div`
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  flex-direction: row;
+`;
 
 const Input = styled.input`
   margin: 5px;
@@ -107,25 +116,79 @@ const NextButton = styled.div`
   }
 `;
 
-const Devices = () => {
-  const { devices, thisDevice, setDevice, nextDirect } =
-    useContext(DeviceContext);
+const zoomAnimation = css`
+  animation: ${ScaleZoom} 400ms ease-in-out forwards;
+`;
+
+const ProfileCard = styled.div<{ number: number; animate: boolean }>`
+  margin: 5px;
+  border-radius: 20px;
+  width: 300px;
+  background-color: #1d1e20;
+  border: 1px solid #383838;
+  text-align: center;
+  color: #747474;
+  font-weight: bold;
+  line-height: 1;
+  padding: 25px 0;
+  cursor: pointer;
+  animation: ${OpacityAndTranslate} 300ms ease-in-out
+    ${({ number }) => number}5ms forwards;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  ${({ animate }) => (animate ? zoomAnimation : null)}
+
+  & #profile-img {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    margin: 10px 0;
+  }
+`;
+
+const RolePill = styled.div`
+  background-color: #712652;
+  padding: 5px 10px;
+  border-radius: 10px;
+  box-shadow: 0px 1px 30px #e40064;
+  margin: 20px 0;
+`;
+
+const Devices = ({ profiles }: { profiles: boolean }) => {
+  const {
+    devices,
+    thisDevice,
+    setDeviceInLocalStorage,
+    newDevice,
+    nextDirect,
+  } = useContext(DeviceContext);
   const [selector, setSelector] = useState("Desktop");
   const [role, setRole] = useState("basic");
   const [name, setName] = useState("");
   const navigate = useNavigate();
+  const [animeteProfile, setAnimateProfile] = useState(false);
 
   const onNextHandler = () => {
-    setDevice({
+    newDevice({
+      id: "",
       name: name,
       deviceType: selector,
       role: role,
+      profileImg: "default",
     });
-    navigate("/");
   };
 
   const nameHandler = (e: ChangeEvent<HTMLInputElement>) => {
     setName(e.target.value);
+  };
+
+  const clickProfileHandler = (device: Device) => {
+    setDeviceInLocalStorage(device);
+    setAnimateProfile(true);
+    setTimeout(() => {
+      navigate("/panel/cash/select");
+    }, 300);
   };
 
   useEffect(() => {
@@ -151,10 +214,29 @@ const Devices = () => {
 
   return (
     <Container>
-      {thisDevice ? (
+      {profiles ? (
         <DevicesContainer>
-          {devices.map((device) => {
-            return <h2>{device.name}</h2>;
+          {devices.map((device, index) => {
+            return (
+              <ProfileCard
+                key={index}
+                number={index}
+                animate={animeteProfile}
+                onClick={() => clickProfileHandler(device)}
+              >
+                <RolePill>{device.role}</RolePill>
+                <img
+                  id="profile-img"
+                  src={
+                    device.role === "admin"
+                      ? "/otter-admin-profile.png"
+                      : "/water-profile.png"
+                  }
+                  alt="profile"
+                />
+                <h2>{device.name}</h2>
+              </ProfileCard>
+            );
           })}
         </DevicesContainer>
       ) : (

@@ -1,4 +1,4 @@
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
 import { CashContext } from "../context/CashContext";
 import useCurrencyFormat from "../hooks/useCurrencyFormat";
@@ -7,6 +7,7 @@ import IncreaseIcon from "../icons/increase-button.svg";
 import ReduceIcon from "../icons/reduce-button.svg";
 import Scale from "./animations/Scale";
 import useScroll from "../hooks/useScroll";
+import ProductInCart from "../interfaces/ProductInCart";
 
 const Container = styled.section`
   display: flex;
@@ -41,7 +42,7 @@ export const ItemCard = styled.div`
   border-radius: 20px;
   border: solid 1px #383838;
   padding: 5px;
-  background-color: #112030;
+  background-color: #1D1E20;
   display: flex;
   align-items: flex-start;
   justify-content: flex-start;
@@ -114,18 +115,27 @@ const DeleteButton = styled.div`
 `;
 
 const CashBox = () => {
-  const { cart, increaseQuantity, reduceQuantity, removeToCart } =
+  const { cart,cartToClient, cartId, increaseQuantity, reduceQuantity, removeToCart } =
     useContext(CashContext);
+  const [CartInView, setCartInView] = useState<ProductInCart[]>([])
   const { formatCurrency } = useCurrencyFormat();
   const { ScrollRef, scrollToTop } = useScroll();
 
   useEffect(() => {
     scrollToTop();
-  }, [cart, scrollToTop]);
+  }, [scrollToTop]);
+
+  useEffect(() => {
+    if (cartId === undefined) {
+      setCartInView(cart);
+    } else if (cartId !== undefined) {
+      setCartInView(cartToClient[cartId].products);
+    }
+  }, [cart, cartId, cartToClient]);
 
   return (
     <Container ref={(el) => (ScrollRef.current = el)}>
-      {cart.map((item) => {
+      {CartInView.map((item) => {
         return (
           <ItemCard key={item.product.id}>
             <QuantityPill>{item.quantity}</QuantityPill>

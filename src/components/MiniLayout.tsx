@@ -48,7 +48,7 @@ const MiniIcon = styled.div`
 `;
 
 const Card = styled.div`
-  background-color: #112030;
+  background-color: #1d1e20;
   border: solid 1px #383838;
 `;
 

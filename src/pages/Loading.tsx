@@ -5,6 +5,7 @@ import styled, { keyframes } from "styled-components";
 import { UserContext } from "../context/UserContext";
 import LogoAnim from "../lotties/novanetalogoanim.json";
 import PizzaSpinner from "../icons/pizza.svg";
+import { DeviceContext } from "../context/DeviceContext";
 
 const Container = styled.section`
   width: 100vw;
@@ -43,9 +44,11 @@ const SpinnerSpace = styled.div`
 
 const Loading = () => {
   const { user, userData } = useContext(UserContext);
+  const { devices, nextDirect, thisDeviceInLocalStorage } = useContext(DeviceContext);
   const [nextReady, setNextReady] = useState({
     userReady: false,
     animReady: false,
+    devicesReady: false,
   });
   const navigate = useNavigate();
 
@@ -62,10 +65,16 @@ const Loading = () => {
   }, [userData, navigate, nextReady, user]);
 
   useEffect(() => {
-    if (nextReady.animReady && nextReady.userReady) {
-      navigate("/panel/cash/select");
+    if (nextReady.animReady && nextReady.userReady && nextReady.devicesReady) {
+      if (nextDirect && thisDeviceInLocalStorage) {
+        navigate("/panel/cash/select");
+      }
+
+      if (!nextDirect) {
+        navigate("/profiles");
+      }
     }
-  }, [nextReady, navigate]);
+  }, [nextReady, navigate, nextDirect, thisDeviceInLocalStorage]);
 
   useEffect(() => {
     if (!nextReady.animReady) {
@@ -73,14 +82,16 @@ const Loading = () => {
     }
   }, [nextReady]);
 
+  useEffect(() => {
+    if (devices.length !== 0 && !nextReady.devicesReady) {
+      setNextReady({ ...nextReady, devicesReady: true });
+    }
+  }, [devices.length, nextReady]);
+
   return (
     <Container>
       <Logo src={LogoAnim} loop={false} keepLastFrame autoplay />
-      {user ? (
-        <Spinner src={PizzaSpinner}/>
-      ) : (
-        <SpinnerSpace />
-      )}
+      {user ? <Spinner src={PizzaSpinner} /> : <SpinnerSpace />}
     </Container>
   );
 };

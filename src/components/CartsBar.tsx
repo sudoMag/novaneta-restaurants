@@ -6,29 +6,55 @@ import {
   WheelEvent,
   useRef,
 } from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
+import ClientCart from "../ClientCart";
 import { CashContext } from "../context/CashContext";
 import useScroll from "../hooks/useScroll";
 import newCartIcon from "../icons/newcart.svg";
 import Opacity from "./animations/Opacity";
 import ScaleX from "./animations/ScaleX";
 
-const Container = styled.section`
+const ActiveMode = css`
+  background: #2f2f2fc2;
+  padding: 10px 0;
+`;
+
+const ActiveButtons = css`
+  padding: 10px 1em;
+  border-radius: 15px;
+  font-size: 1.1em;
+`;
+
+const SelectedCart = css`
+  background-color: var(--bg-color);
+  color: var(--bg-main-color);
+  font-weight: bold;
+`;
+
+const Container = styled.section<{ onSelectMode: boolean }>`
   display: flex;
   align-items: center;
   width: 100%;
   justify-content: flex-start;
+  border-radius: 10px;
+  transition-duration: 400ms;
+
+  ${({ onSelectMode }) => {
+    if (onSelectMode) {
+      return ActiveMode;
+    }
+  }}
 
   & h1 {
     margin: 10px;
   }
-
-  & span {
-    font-size: 1.6em;
-  }
 `;
 
 const NewCartButton = styled.img`
+  border-radius: 8px;
+  padding: 10px 10px;
+  background-color: var(--bg-main-color);
+  border: 1px solid #383838;
   margin: 10px 20px;
   cursor: pointer;
 `;
@@ -43,19 +69,31 @@ const ClientCartsContainer = styled.div`
   }
 `;
 
-const ClientCart = styled.div`
+const ClientCartButton = styled.div<{ onSelectMode: boolean; active?: boolean }>`
   height: 35px;
   border-radius: 8px;
-  background-color: #112030;
+  background-color: var(--bg-main-color);
   border: 1px solid #383838;
   display: flex;
   align-items: center;
   justify-content: center;
   margin: 0 5px;
+  line-height: 1;
   padding: 0 1em;
   transform: scaleX(0);
   white-space: nowrap;
   animation: ${ScaleX} 300ms ease-in-out forwards;
+  transition-duration: 500ms;
+  cursor: pointer;
+  ${({ active }) => {
+    return active ? SelectedCart : null;
+  }}
+
+  ${({ onSelectMode }) => {
+    if (onSelectMode) {
+      return ActiveButtons;
+    }
+  }}
 `;
 
 const NewCartName = styled.input`
@@ -74,7 +112,8 @@ const NewCartName = styled.input`
 `;
 
 const CartsBar = () => {
-  const { cart, cartToClient, addToClientCart } = useContext(CashContext);
+  const { cartToClient, selectClientEvent, createClientCart } =
+    useContext(CashContext);
   const [showNameInput, setShowNameInput] = useState(false);
   const [name, setName] = useState("");
   const { ScrollRef, scrollToLeft } = useScroll();
@@ -87,7 +126,7 @@ const CartsBar = () => {
 
   const handleSubmmit = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && name !== "") {
-      addToClientCart(cart, name);
+      createClientCart(name, "to go");
       setName("");
       setShowNameInput(false);
       scrollToLeft();
@@ -99,10 +138,9 @@ const CartsBar = () => {
   };
 
   const wheelHandler = (e: WheelEvent<HTMLDivElement>) => {
-    console.log(scrollNumber.current, ScrollRef.current?.clientWidth);
     if (ScrollRef.current && e.deltaY === 100) {
       ScrollRef.current.scrollLeft =
-        scrollNumber.current > (ScrollRef.current.clientWidth)
+        scrollNumber.current > ScrollRef.current.clientWidth
           ? ScrollRef.current.clientWidth
           : (scrollNumber.current += 10);
     }
@@ -113,24 +151,24 @@ const CartsBar = () => {
   };
 
   return (
-    <Container>
+    <Container onSelectMode={selectClientEvent}>
       <NewCartButton src={newCartIcon} onClick={nameToggle} />
       {showNameInput ? (
-        <ClientCart>
+        <ClientCartButton onSelectMode={selectClientEvent}>
           <NewCartName
             value={name}
             onChange={handleName}
             onKeyDown={(e) => handleSubmmit(e)}
             placeholder="Nombre"
           />
-        </ClientCart>
+        </ClientCartButton>
       ) : null}
       <ClientCartsContainer
         ref={(el) => (ScrollRef.current = el)}
         onWheel={wheelHandler}
       >
         {cartToClient.map((cart, index) => (
-          <ClientCart key={index}>{cart.name}</ClientCart>
+          <ClientCart key={index} cartInView={cart} index={index} />
         ))}
       </ClientCartsContainer>
     </Container>

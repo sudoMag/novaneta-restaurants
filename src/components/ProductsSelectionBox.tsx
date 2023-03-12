@@ -4,6 +4,8 @@ import { CashContext } from "../context/CashContext";
 import { Context } from "../context/ProductContext";
 import useCurrencyFormat from "../hooks/useCurrencyFormat";
 import Opacity from "./animations/Opacity";
+import pizaSpinner from "../icons/pizzalight.svg";
+import SpinnerRotation from "./animations/SpinnerRotation";
 
 const Container = styled.section`
   display: flex;
@@ -11,6 +13,7 @@ const Container = styled.section`
   overflow-y: auto;
   padding: 5px;
   justify-content: center;
+  height: 100%;
 
   &::-webkit-scrollbar {
     display: none;
@@ -20,7 +23,7 @@ const Container = styled.section`
 const ProductCard = styled.div<{ number: number }>`
   width: 120px;
   height: 155px;
-  background-color: #112030;
+  background-color: #1d1e20;
   border: solid 1px #383838;
   border-radius: 30px;
   margin: 5px;
@@ -47,10 +50,11 @@ const ProductCard = styled.div<{ number: number }>`
 const ImgContainer = styled.div`
   width: 100%;
   height: 60%;
+  background: rgb(124, 68, 15);
   background: linear-gradient(
-    90deg,
-    rgba(98, 62, 7, 1) 0%,
-    rgba(115, 42, 81, 1) 100%
+    191deg,
+    var(--bg-main-color) -40%,
+    rgba(29, 30, 32, 1) 100%
   );
 `;
 
@@ -60,8 +64,11 @@ const PricePill = styled.div`
   border: solid 1px gray;
   background-color: #2727286b;
   text-align: end;
-  color: white;
   margin-top: -1.9em;
+`;
+
+const Spiner = styled.img`
+  animation: ${SpinnerRotation} 1s linear infinite;
 `;
 
 const ProductsSelectionBox = () => {
@@ -90,7 +97,7 @@ const ProductsSelectionBox = () => {
               </ProductCard>
             );
           })
-        : "cargando..."}
+        : <Spiner src={pizaSpinner} />}
     </Container>
   );
 };

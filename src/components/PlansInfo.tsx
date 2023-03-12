@@ -27,7 +27,7 @@ export const PlanCard = styled.div`
   border-radius: 20px;
   border: solid 1px #383838;
   padding: 20px;
-  background-color: #112030;
+  background-color: #1D1E20;
 `;
 
 const PlansContainer = styled.div`
