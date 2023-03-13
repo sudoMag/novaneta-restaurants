@@ -8,6 +8,8 @@ import LogoBlack from "../../icons/logoblack.svg";
 import ReactToPrint from "react-to-print";
 import { UserContext } from "../../context/UserContext";
 import ProductInCart from "../../interfaces/ProductInCart";
+import { KitchenContext } from "../../context/KitchenContext";
+import CartToClient from "../../interfaces/CartToClient";
 
 const Invoice = styled.div`
   width: 8cm;
@@ -89,6 +91,25 @@ const DataUser = styled.div`
   }
 `;
 
+const SendToKitchenButton = styled.div`
+  padding: 10px;
+  border-radius: 10px;
+  background-color: var(--bg-main-color);
+  color: #1d1e20;
+  font-weight: bold;
+  cursor: pointer;
+  margin: 10px;
+`;
+
+const DisableButton = styled.div`
+  padding: 10px;
+  background-color: #414141;
+  border-radius: 10px;
+  margin: 10px;
+  font-weight: bold;
+  color: #1d1e20;
+`;
+
 const Pay = () => {
   const [totalToPay, setTotalToPay] = useState(0);
   const [cartInView, setCartInView] = useState<ProductInCart[]>([]);
@@ -96,6 +117,7 @@ const Pay = () => {
   const { formatCurrency } = useCurrencyFormat();
   const invoiceRef = useRef<HTMLDivElement | null>(null);
   const { userData } = useContext(UserContext);
+  const {sendToTheKitchen} = useContext(KitchenContext)
 
   const getDate = () => {
     const now = Date.now();
@@ -103,6 +125,12 @@ const Pay = () => {
       now
     ).getHours()}:${new Date(now).getMinutes()}`;
   };
+
+  const HandleClick = (cart: CartToClient[]) => {
+    if (cartId !== undefined) {
+      sendToTheKitchen(cartToClient[cartId]);
+    }
+  }
 
   useEffect(() => {
     let total = 0;
@@ -140,7 +168,10 @@ const Pay = () => {
             trigger={() => <PrintButton>IMPRIMIR</PrintButton>}
             content={() => invoiceRef.current}
           />
-        ) : null}
+          ) : null}
+          {cartId === undefined ?
+          <DisableButton>Enviar a Cocina</DisableButton>
+          :<SendToKitchenButton onClick={() => HandleClick(cartToClient)}>Enviar a cocina</SendToKitchenButton>}
       </LeftContent>
       <RightContent>
         <h3>Factura</h3>

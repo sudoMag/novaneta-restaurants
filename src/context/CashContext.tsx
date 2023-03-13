@@ -1,7 +1,16 @@
-import { createContext, useEffect, useState } from "react";
+import {
+  addDoc,
+  collection,
+  doc,
+  onSnapshot,
+  updateDoc,
+} from "firebase/firestore";
+import { createContext, useContext, useEffect, useState } from "react";
+import { db } from "../firebase/configuration";
 import CartToClient from "../interfaces/CartToClient";
 import Product from "../interfaces/Product";
 import ProductInCart from "../interfaces/ProductInCart";
+import { UserContext } from "./UserContext";
 
 interface IContext {
   cart: ProductInCart[];
@@ -14,7 +23,7 @@ interface IContext {
   createClientCart: (name: string, type?: string) => void;
   addToCart: (product: Product) => void;
   addToClientCart: (id: number, product: Product) => void;
-  emptyClientCart: (id: number) => void;
+  emptyClientCart: (id: number, sendedToKitchen?: boolean) => void;
   removeToCart: (productID: string) => void;
   increaseQuantity: (productID: string) => void;
   reduceQuantity: (productID: string) => void;
@@ -31,7 +40,7 @@ export const CashContext = createContext<IContext>({
   setIdforCartId: (id: number | undefined) => {},
   createClientCart: (name: string, type?: string) => {},
   addToClientCart: (id: number, product: Product) => {},
-  emptyClientCart: (id: number) => {},
+  emptyClientCart: (id: number, sendedToKitchen?: boolean) => {},
   removeToCart: (productID: string) => {},
   increaseQuantity: (productID: string) => {},
   reduceQuantity: (productID: string) => {},
@@ -43,6 +52,7 @@ export const CashContextProvider = ({
   children: JSX.Element | JSX.Element[];
 }) => {
   const [cart, setCart] = useState<ProductInCart[]>([]);
+  const { user } = useContext(UserContext);
   const [cartId, setCartId] = useState<number | undefined>(undefined);
   const [cartToClient, setCartToClient] = useState<CartToClient[]>([]);
   const [selectClientEvent, setSelectClientEvent] = useState(false);
@@ -70,7 +80,17 @@ export const CashContextProvider = ({
   };
 
   const createClientCart = (name: string, type?: string) => {
-    setCartToClient([
+    addDoc(collection(db, `Users/${user?.uid}/Carts`), {
+      id: cartToClient.length,
+      name: name,
+      type: type ? type : "in table",
+      products: [],
+      itemsNumber: 0,
+      status: "empty",
+    }).then((doc) => {
+      return doc.id;
+    });
+    /* setCartToClient([
       ...cartToClient,
       {
         id: cartToClient.length,
@@ -80,48 +100,56 @@ export const CashContextProvider = ({
         itemsNumber: 0,
         status: "empty",
       },
-    ]);
+    ]); */
   };
 
   const addToClientCart = (id: number, product: Product) => {
-    const clientCartIndex = cartToClient.findIndex((item) => item.id === id);
-    const machProductIndex = cartToClient[clientCartIndex].products.findIndex(
+    let newCart = cartToClient[id];
+    const machProductIndex = newCart.products.findIndex(
       (item) => item.product.id === product.id
     );
     let number = 0;
     if (machProductIndex !== -1) {
-      let newCart: CartToClient[];
-      newCart = cartToClient;
-      if (newCart[id].products.length !== 0) {
-        newCart[id].products[machProductIndex].quantity++;
-        newCart[id].products.forEach((item) => {
+      if (newCart.products.length !== 0) {
+        newCart.products[machProductIndex].quantity++;
+        newCart.products.forEach((item) => {
           number += item.quantity;
         });
       }
-      newCart[id].itemsNumber = number;
-      newCart[clientCartIndex].status = "ordering";
-      setCartToClient([...newCart]);
+      newCart.itemsNumber = number;
+      newCart.status = "ordering";
     } else if (machProductIndex === -1) {
-      let newCart = cartToClient;
-      newCart[clientCartIndex].products.push({
+      newCart.products.push({
         product: product,
         quantity: 1,
       });
-      newCart[id].products.forEach((item) => {
+      newCart.products.forEach((item) => {
         number += item.quantity;
       });
-      newCart[clientCartIndex].itemsNumber = number;
-      newCart[clientCartIndex].status = "ordering";
-      setCartToClient([...newCart]);
+      newCart.itemsNumber = number;
+      newCart.status = "ordering";
     }
+
+    updateDoc(doc(db, `Users/${user?.uid}/Carts/${newCart.dbId}`), {
+      ...newCart,
+    });
   };
 
-  const emptyClientCart = (id: number) => {
+  const emptyClientCart = (id: number, sendedToKitchen?: boolean) => {
     const inClientCart = cartToClient.findIndex((item) => item.id === id);
     let newCart = cartToClient;
+    let number = 0;
     if (inClientCart !== -1) {
       newCart[inClientCart].products = [];
-      newCart[inClientCart].status = "empty";
+      if (sendedToKitchen) {
+        newCart[inClientCart].status = "in kitchen";
+      } else {
+        newCart[inClientCart].status = "empty";
+      }
+      newCart[inClientCart].products.forEach((item) => {
+        number += item.quantity;
+      });
+      newCart[inClientCart].itemsNumber = number;
       setCartToClient([...newCart]);
     }
   };
@@ -130,16 +158,22 @@ export const CashContextProvider = ({
     if (cartId === undefined) {
       let cartWithoutProduct = cart.filter(
         (item) => item.product.id !== productID
-      );
-
-      setCart(cartWithoutProduct);
-    } else {
-      let newCart = cartToClient
+        );
+        setCart(cartWithoutProduct)
+      } else {
+      let newCart = cartToClient[cartId];
+      let number = 0;
       let cartWithoutProduct = cartToClient[cartId].products.filter((item) => {
         return item.product.id !== productID;
       });
-      newCart[cartId].products = cartWithoutProduct;
-      setCartToClient([...newCart]);
+      newCart.products = cartWithoutProduct;
+      newCart.products.forEach((item) => {
+        number += item.quantity;
+      });
+      newCart.itemsNumber = number;
+      updateDoc(doc(db, `Users/${user?.uid}/Carts/${newCart.dbId}`), {
+        ...newCart,
+      });
     }
   };
 
@@ -153,14 +187,21 @@ export const CashContextProvider = ({
         setCart([...newListItems]);
       }
     } else {
-      let itemIndex = cartToClient[cartId].products.findIndex(
+      let newListItems = cartToClient[cartId];
+      let itemIndex = newListItems.products.findIndex(
         (item) => item.product.id === productID
       );
 
       if (itemIndex !== -1) {
-        let newListItems = cartToClient;
-        newListItems[cartId].products[itemIndex].quantity++;
-        setCartToClient([...newListItems]);
+        let number = 0;
+        newListItems.products[itemIndex].quantity++;
+        newListItems.products.forEach((item) => {
+          number += item.quantity;
+        });
+        newListItems.itemsNumber = number;
+        updateDoc(doc(db, `Users/${user?.uid}/Carts/${newListItems.dbId}`), {
+          ...newListItems,
+        });
       }
     }
   };
@@ -175,17 +216,24 @@ export const CashContextProvider = ({
         setCart([...newListItems]);
       }
     } else {
-      let itemIndex = cartToClient[cartId].products.findIndex(
+      let newListItems = cartToClient[cartId];
+      let itemIndex = newListItems.products.findIndex(
         (item) => item.product.id === productID
       );
 
       if (
         itemIndex !== -1 &&
-        cartToClient[cartId].products[itemIndex].quantity !== 1
+        newListItems.products[itemIndex].quantity !== 1
       ) {
-        let newListItems = cartToClient;
-        newListItems[cartId].products[itemIndex].quantity--;
-        setCartToClient([...newListItems]);
+        let number = 0;
+        newListItems.products[itemIndex].quantity--;
+        newListItems.products.forEach((item) => {
+          number += item.quantity;
+        });
+        newListItems.itemsNumber = number;
+        updateDoc(doc(db, `Users/${user?.uid}/Carts/${newListItems.dbId}`), {
+          ...newListItems,
+        });
       }
     }
   };
@@ -202,7 +250,31 @@ export const CashContextProvider = ({
     }
   };
 
-  useEffect(() => {}, [cart]);
+  useEffect(() => {
+    const unsubscribe = onSnapshot(
+      collection(db, `Users/${user?.uid}/Carts`),
+      (docs) => {
+        let data: CartToClient[] = [];
+        docs.forEach((item) => {
+          const { id, name, type, products, itemsNumber, status } = item.data();
+          data.push({
+            dbId: item.id,
+            id,
+            name,
+            type,
+            products,
+            itemsNumber,
+            status,
+          });
+        });
+        setCartToClient(data);
+      },
+      (error) => {
+        console.error(error);
+      }
+    );
+    return unsubscribe;
+  }, [user?.uid]);
 
   return (
     <CashContext.Provider

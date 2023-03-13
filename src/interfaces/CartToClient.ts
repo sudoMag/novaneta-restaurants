@@ -1,6 +1,7 @@
 import ProductInCart from "./ProductInCart";
 
 interface CartToClient {
+  dbId: string;
   id: number;
   name: string;
   type: string;

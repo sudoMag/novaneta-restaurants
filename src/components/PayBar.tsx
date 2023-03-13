@@ -96,9 +96,9 @@ const PayBar = () => {
         Total a Pagar: <span>$ {formatCurrency("CLP", totalToPay)}</span>
       </h1>
       {totalToPay === 0 ? (
-        <DisableButton className="disable">Pagar</DisableButton>
+        <DisableButton className="disable">Siguiente</DisableButton>
       ) : (
-        <PayButton to="/panel/cash/pay">Pagar</PayButton>
+        <PayButton to="/panel/cash/pay">Siguiente</PayButton>
       )}
     </Container>
   );

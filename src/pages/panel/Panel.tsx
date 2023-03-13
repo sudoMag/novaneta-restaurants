@@ -10,6 +10,9 @@ import ConfigIcon from "../../icons/config.svg";
 import NewProduct from "./NewProduct";
 import Config from "./Config";
 import { CashContextProvider } from "../../context/CashContext";
+import Kitchen from "../Kitchen";
+import KitchenIcon from "../../icons/kitchen.svg";
+import { KitchenContextProvider } from "../../context/KitchenContext";
 
 const Container = styled.section`
   display: flex;
@@ -109,6 +112,11 @@ const Panel = () => {
                 </RouteLink>
               </li>
               <li>
+                <RouteLink to="./kitchen">
+                  <img src={KitchenIcon} alt="cocina" />
+                </RouteLink>
+              </li>
+              <li>
                 <RouteLink to="./new">
                   <img src={NewProductIcon} alt="new" />
                 </RouteLink>
@@ -126,11 +134,14 @@ const Panel = () => {
         </Navigation>
         <RightContainer>
           <CashContextProvider>
-            <Routes>
-              <Route path="/cash/*" element={<Resume />} />
-              <Route path="new" element={<NewProduct />} />
-              <Route path="config/*" element={<Config />} />
-            </Routes>
+            <KitchenContextProvider>
+              <Routes>
+                <Route path="/cash/*" element={<Resume />} />
+                <Route path="kitchen" element={<Kitchen />} />
+                <Route path="new" element={<NewProduct />} />
+                <Route path="config/*" element={<Config />} />
+              </Routes>
+            </KitchenContextProvider>
           </CashContextProvider>
         </RightContainer>
       </ProductsContext>
