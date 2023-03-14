@@ -3,6 +3,8 @@ import {
   collection,
   doc,
   onSnapshot,
+  orderBy,
+  query,
   updateDoc,
 } from "firebase/firestore";
 import { createContext, useContext, useEffect, useState } from "react";
@@ -90,17 +92,6 @@ export const CashContextProvider = ({
     }).then((doc) => {
       return doc.id;
     });
-    /* setCartToClient([
-      ...cartToClient,
-      {
-        id: cartToClient.length,
-        name: name,
-        type: type ? type : "in table",
-        products: [],
-        itemsNumber: 0,
-        status: "empty",
-      },
-    ]); */
   };
 
   const addToClientCart = (id: number, product: Product) => {
@@ -251,8 +242,9 @@ export const CashContextProvider = ({
   };
 
   useEffect(() => {
+    const q = query(collection(db, `Users/${user?.uid}/Carts`), orderBy("id", "asc"));
     const unsubscribe = onSnapshot(
-      collection(db, `Users/${user?.uid}/Carts`),
+      q,
       (docs) => {
         let data: CartToClient[] = [];
         docs.forEach((item) => {
