@@ -113,11 +113,11 @@ const DisableButton = styled.div`
 const Pay = () => {
   const [totalToPay, setTotalToPay] = useState(0);
   const [cartInView, setCartInView] = useState<ProductInCart[]>([]);
-  const { cart, cartToClient, cartId } = useContext(CashContext);
+  const { cart, cartToClient, selectedCart } = useContext(CashContext);
   const { formatCurrency } = useCurrencyFormat();
   const invoiceRef = useRef<HTMLDivElement | null>(null);
   const { userData } = useContext(UserContext);
-  const {sendToTheKitchen} = useContext(KitchenContext)
+  const { ordersInView, sendToTheKitchen } = useContext(KitchenContext);
 
   const getDate = () => {
     const now = Date.now();
@@ -126,34 +126,41 @@ const Pay = () => {
     ).getHours()}:${new Date(now).getMinutes()}`;
   };
 
-  const HandleClick = (cart: CartToClient[]) => {
-    if (cartId !== undefined) {
-      sendToTheKitchen(cartToClient[cartId]);
+  const HandleClick = (cart: CartToClient) => {
+    if (selectedCart !== -1) {
+      sendToTheKitchen(cart);
     }
-  }
+  };
 
   useEffect(() => {
     let total = 0;
-    if (cartId === undefined) {
+    if (selectedCart === -1) {
       cart.forEach((item) => {
         total += item.product.price * item.quantity;
       });
       setTotalToPay(total);
     } else {
-      cartToClient[cartId].products.forEach((item) => {
+      cartToClient[selectedCart].products.forEach((item) => {
         total += item.product.price * item.quantity;
       });
+      if (ordersInView !== undefined) {
+        ordersInView.forEach((order) => {
+          order.products.forEach((item) => {
+            total += item.product.price * item.quantity;
+          });
+        })
+      }
       setTotalToPay(total);
     }
-  }, [cart, cartId, cartToClient]);
+  }, [selectedCart, cartToClient, cart, ordersInView]);
 
   useEffect(() => {
-    if (cartId === undefined) {
+    if (selectedCart === -1) {
       setCartInView(cart);
     } else {
-      setCartInView(cartToClient[cartId].products);
+      setCartInView(cartToClient[selectedCart].products);
     }
-  }, [cart, cartId, cartToClient]);
+  }, [cart, selectedCart, cartToClient]);
 
   return (
     <>
@@ -168,10 +175,16 @@ const Pay = () => {
             trigger={() => <PrintButton>IMPRIMIR</PrintButton>}
             content={() => invoiceRef.current}
           />
-          ) : null}
-          {cartId === undefined ?
+        ) : null}
+        {selectedCart === -1 ? (
           <DisableButton>Enviar a Cocina</DisableButton>
-          :<SendToKitchenButton onClick={() => HandleClick(cartToClient)}>Enviar a cocina</SendToKitchenButton>}
+        ) : (
+          <SendToKitchenButton
+            onClick={() => HandleClick(cartToClient[selectedCart])}
+          >
+            Enviar a cocina
+          </SendToKitchenButton>
+        )}
       </LeftContent>
       <RightContent>
         <h3>Factura</h3>
@@ -188,6 +201,18 @@ const Pay = () => {
           <hr />
           <InvoiceTitle>FACTURA</InvoiceTitle>
           <ItemsContainer>
+            {ordersInView !== undefined
+              ? ordersInView.map((order) => (
+                order.products.map((item) => {
+                  return (
+                    <Item key={item.product.id}>
+                      x{item.quantity} {item.product.name}
+                      <ItemPrice>{item.product.price}</ItemPrice>
+                    </Item>
+                  );
+                })
+              ))
+              : null}
             {cartInView.map((item) => {
               return (
                 <Item key={item.product.id}>

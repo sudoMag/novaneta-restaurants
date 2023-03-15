@@ -8,6 +8,7 @@ import ReduceIcon from "../icons/reduce-button.svg";
 import Scale from "./animations/Scale";
 import useScroll from "../hooks/useScroll";
 import ProductInCart from "../interfaces/ProductInCart";
+import { KitchenContext } from "../context/KitchenContext";
 
 const Container = styled.section`
   display: flex;
@@ -42,7 +43,7 @@ export const ItemCard = styled.div`
   border-radius: 20px;
   border: solid 1px #383838;
   padding: 5px;
-  background-color: #1D1E20;
+  background-color: #1d1e20;
   display: flex;
   align-items: flex-start;
   justify-content: flex-start;
@@ -114,27 +115,78 @@ const DeleteButton = styled.div`
   cursor: pointer;
 `;
 
+const OrderCart = styled(ItemCard)`
+  flex-direction: column;
+  align-items: center;
+`;
+
+const ProgressBar = styled.div`
+  width: 90%;
+  height: 4px;
+`;
+
+const Bar = styled.div<{ porcentage: number }>`
+  width: 100%;
+  ${({ porcentage }) => `width: ${porcentage}%`};
+  height: 100%;
+  background-color: var(--bg-main-color);
+  transition-duration: 400ms;
+  transition-timing-function: ease-in-out;
+  border-radius: 10px;
+`;
+
 const CashBox = () => {
-  const { cart,cartToClient, cartId, increaseQuantity, reduceQuantity, removeToCart } =
-    useContext(CashContext);
-  const [CartInView, setCartInView] = useState<ProductInCart[]>([])
+  const {
+    cart,
+    cartToClient,
+    selectedCart,
+    increaseQuantity,
+    reduceQuantity,
+    removeToCart,
+  } = useContext(CashContext);
+  const { ordersInView } = useContext(KitchenContext);
+  const [CartInView, setCartInView] = useState<ProductInCart[]>([]);
   const { formatCurrency } = useCurrencyFormat();
   const { ScrollRef, scrollToTop } = useScroll();
+
+  const calcPorcentage = (A: number, B: number) => {
+    return (A / B) * 100;
+  };
 
   useEffect(() => {
     scrollToTop();
   }, [scrollToTop]);
 
   useEffect(() => {
-    if (cartId === undefined) {
+    if (selectedCart === -1) {
       setCartInView(cart);
-    } else if (cartId !== undefined) {
-      setCartInView(cartToClient[cartId].products);
+    } else if (selectedCart !== -1) {
+      setCartInView(cartToClient[selectedCart].products);
     }
-  }, [cart, cartId, cartToClient]);
+  }, [cart, cartToClient, selectedCart]);
 
   return (
     <Container ref={(el) => (ScrollRef.current = el)}>
+      {ordersInView !== undefined
+        ? ordersInView.map((order, index) => (
+          <OrderCart key={index}>
+              <CardContent>
+                <h4>Cocinando</h4>
+                <span>
+                  {order.prepared}/{order.itemsNumber}
+                </span>
+              </CardContent>
+              <ProgressBar>
+                <Bar
+                  porcentage={calcPorcentage(
+                    order.prepared,
+                    order.itemsNumber
+                  )}
+                />
+              </ProgressBar>
+            </OrderCart>
+        ))
+        : null}
       {CartInView.map((item) => {
         return (
           <ItemCard key={item.product.id}>

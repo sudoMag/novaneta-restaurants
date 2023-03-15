@@ -1,8 +1,10 @@
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import styled, { css } from "styled-components";
 import ScaleX from "./components/animations/ScaleX";
 import { CashContext } from "./context/CashContext";
 import CartToClient from "./interfaces/CartToClient";
+import DeleteIcon from "./icons/deletex-circle.svg";
+import { KitchenContext } from "./context/KitchenContext";
 
 const ActiveButtons = css`
   padding: 10px 1em;
@@ -45,6 +47,25 @@ const ClientCartPillName = styled.div<{
       return ActiveButtons;
     }
   }}
+
+  & #delete {
+    display: none;
+    padding: 5px;
+    align-items: center;
+    justify-content: center;
+  }
+
+  & #number {
+    display: block;
+  }
+
+  &:hover #delete {
+    display: flex;
+  }
+
+  &:hover #number {
+    display: none;
+  }
 `;
 
 const NumberPill = styled.span`
@@ -62,23 +83,43 @@ const ClientCart = ({
   cartInView: CartToClient;
   index: number;
 }) => {
-  const { cartId, setIdforCartId, selectClientEvent } = useContext(CashContext);
+  const { cartId, setIdforCartId, selectClientEvent, deleteCart } =
+    useContext(CashContext);
+  const { orders } = useContext(KitchenContext);
+  const [orderProductsNumber, setOrderProductsNumber] = useState(0);
+
+  useEffect(() => {
+    const order = orders.find((item) => item.dbId === cartInView.dbId);
+    console.log(cartInView.name, cartInView.dbId, order);
+    if (order) {
+      setOrderProductsNumber(order.itemsNumber);
+    }
+  }, [cartInView.dbId, cartInView.name, orders]);
 
   return (
     <ClientCartPillName
       onSelectMode={selectClientEvent}
-      active={cartId === index ? true : false}
+      active={cartId === cartInView.dbId ? true : false}
       onClick={() => {
-        if (cartInView.id !== cartId) {
-          setIdforCartId(cartInView.id);
-        } else if (cartInView.id === cartId) {
+        if (cartInView.dbId !== cartId) {
+          setIdforCartId(cartInView.dbId);
+        } else if (cartInView.dbId === cartId) {
           setIdforCartId(undefined);
         }
       }}
     >
       {cartInView.name}
-      {cartInView.itemsNumber !== 0 ? (
-        <NumberPill>{cartInView.itemsNumber}</NumberPill>
+      {cartInView.dbId === cartId ? (
+        <>
+          <NumberPill id="delete" onClick={() => deleteCart(cartInView.dbId)}>
+            <img src={DeleteIcon} alt="delete" />
+          </NumberPill>
+          <NumberPill id="number">
+            {cartInView.itemsNumber + orderProductsNumber}
+          </NumberPill>
+        </>
+      ) : cartInView.itemsNumber + orderProductsNumber !== 0 ? (
+        <NumberPill>{cartInView.itemsNumber + orderProductsNumber}</NumberPill>
       ) : null}
     </ClientCartPillName>
   );

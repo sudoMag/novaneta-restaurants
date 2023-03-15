@@ -2,6 +2,7 @@ import { useState, useContext, useEffect } from "react";
 import { NavLink } from "react-router-dom";
 import styled from "styled-components";
 import { CashContext } from "../context/CashContext";
+import { KitchenContext } from "../context/KitchenContext";
 import useCurrencyFormat from "../hooks/useCurrencyFormat";
 
 const Container = styled.section`
@@ -62,24 +63,30 @@ const OthersContainer = styled.div`
 
 const PayBar = () => {
   const [totalToPay, setTotalToPay] = useState(0);
-  const { cart, cartToClient, cartId, selectEventToggle } =
+  const { cart, cartToClient, selectedCart, selectEventToggle } =
     useContext(CashContext);
+  const { ordersInView } = useContext(KitchenContext);
   const { formatCurrency } = useCurrencyFormat();
 
   useEffect(() => {
     let total = 0;
-    if (cartId === undefined) {
+    if (selectedCart === -1) {
       cart.forEach((item) => {
         total += item.product.price * item.quantity;
       });
       setTotalToPay(total);
     } else {
-      cartToClient[cartId].products.forEach((item) => {
+      cartToClient[selectedCart].products.forEach((item) => {
         total += item.product.price * item.quantity;
+      });
+      ordersInView?.forEach((order) => {
+        order.products.forEach((item) => {
+          total += item.product.price * item.quantity;
+        });
       });
       setTotalToPay(total);
     }
-  }, [cart, cartId, cartToClient]);
+  }, [cart, cartToClient, ordersInView, selectedCart]);
 
   return (
     <Container>

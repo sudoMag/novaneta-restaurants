@@ -1,6 +1,7 @@
 import {
   addDoc,
   collection,
+  deleteDoc,
   doc,
   onSnapshot,
   orderBy,
@@ -20,13 +21,15 @@ interface IContext {
   showClientCart: (name: string) => void;
   selectEventToggle: () => void;
   selectClientEvent: boolean;
-  cartId: number | undefined;
-  setIdforCartId: (id: number | undefined) => void;
+  cartId: string | undefined;
+  selectedCart: number;
+  setIdforCartId: (id: string | undefined) => void;
   createClientCart: (name: string, type?: string) => void;
   addToCart: (product: Product) => void;
-  addToClientCart: (id: number, product: Product) => void;
-  emptyClientCart: (id: number, sendedToKitchen?: boolean) => void;
+  addToClientCart: (id: string, product: Product) => void;
+  emptyClientCart: (id: string, sendedToKitchen?: boolean) => void;
   removeToCart: (productID: string) => void;
+  deleteCart: (dbId: string) => void;
   increaseQuantity: (productID: string) => void;
   reduceQuantity: (productID: string) => void;
 }
@@ -39,11 +42,13 @@ export const CashContext = createContext<IContext>({
   selectEventToggle: () => {},
   addToCart: (product: Product) => {},
   cartId: undefined,
-  setIdforCartId: (id: number | undefined) => {},
+  selectedCart: 0,
+  setIdforCartId: (id: string | undefined) => {},
   createClientCart: (name: string, type?: string) => {},
-  addToClientCart: (id: number, product: Product) => {},
-  emptyClientCart: (id: number, sendedToKitchen?: boolean) => {},
+  addToClientCart: (id: string, product: Product) => {},
+  emptyClientCart: (id: string, sendedToKitchen?: boolean) => {},
   removeToCart: (productID: string) => {},
+  deleteCart: (dbId: string) => {},
   increaseQuantity: (productID: string) => {},
   reduceQuantity: (productID: string) => {},
 });
@@ -55,12 +60,14 @@ export const CashContextProvider = ({
 }) => {
   const [cart, setCart] = useState<ProductInCart[]>([]);
   const { user } = useContext(UserContext);
-  const [cartId, setCartId] = useState<number | undefined>(undefined);
+  const [cartId, setCartId] = useState<string | undefined>(undefined);
+  const [selectedCart, setSelectedCart] = useState<number>(-1);
   const [cartToClient, setCartToClient] = useState<CartToClient[]>([]);
   const [selectClientEvent, setSelectClientEvent] = useState(false);
 
-  const setIdforCartId = (id: number | undefined) => {
+  const setIdforCartId = (id: string | undefined) => {
     setCartId(id);
+    setSelectedCart(cartToClient.findIndex((item) => item.dbId === id));
   };
 
   const addToCart = (product: Product) => {
@@ -94,70 +101,49 @@ export const CashContextProvider = ({
     });
   };
 
-  const addToClientCart = (id: number, product: Product) => {
-    let newCart = cartToClient[id];
-    const machProductIndex = newCart.products.findIndex(
-      (item) => item.product.id === product.id
-    );
-    let number = 0;
-    if (machProductIndex !== -1) {
-      if (newCart.products.length !== 0) {
-        newCart.products[machProductIndex].quantity++;
+  const addToClientCart = (id: string, product: Product) => {
+    let newCart = cartToClient.find((item) => item.dbId === id);
+    if (newCart !== undefined) {
+      const machProductIndex = newCart.products.findIndex(
+        (item) => item.product.id === product.id
+      );
+      let number = 0;
+      if (machProductIndex !== -1) {
+        if (newCart.products.length !== 0) {
+          newCart.products[machProductIndex].quantity++;
+          newCart.products.forEach((item) => {
+            number += item.quantity;
+          });
+        }
+        newCart.itemsNumber = number;
+        newCart.status = "ordering";
+      } else if (machProductIndex === -1) {
+        newCart.products.push({
+          product: product,
+          quantity: 1,
+        });
         newCart.products.forEach((item) => {
           number += item.quantity;
         });
+        newCart.itemsNumber = number;
+        newCart.status = "ordering";
       }
-      newCart.itemsNumber = number;
-      newCart.status = "ordering";
-    } else if (machProductIndex === -1) {
-      newCart.products.push({
-        product: product,
-        quantity: 1,
+      updateDoc(doc(db, `Users/${user?.uid}/Carts/${newCart.dbId}`), {
+        ...newCart,
       });
-      newCart.products.forEach((item) => {
-        number += item.quantity;
-      });
-      newCart.itemsNumber = number;
-      newCart.status = "ordering";
     }
-
-    updateDoc(doc(db, `Users/${user?.uid}/Carts/${newCart.dbId}`), {
-      ...newCart,
-    });
   };
 
-  const emptyClientCart = (id: number, sendedToKitchen?: boolean) => {
-    const inClientCart = cartToClient.findIndex((item) => item.id === id);
-    let newCart = cartToClient;
+  const emptyClientCart = (id: string, sendedToKitchen?: boolean) => {
+    let newCart = cartToClient.find((item) => item.dbId === id);
     let number = 0;
-    if (inClientCart !== -1) {
-      newCart[inClientCart].products = [];
+    if (newCart !== undefined) {
+      newCart.products = [];
       if (sendedToKitchen) {
-        newCart[inClientCart].status = "in kitchen";
+        newCart.status = "in kitchen";
       } else {
-        newCart[inClientCart].status = "empty";
+        newCart.status = "empty";
       }
-      newCart[inClientCart].products.forEach((item) => {
-        number += item.quantity;
-      });
-      newCart[inClientCart].itemsNumber = number;
-      setCartToClient([...newCart]);
-    }
-  };
-
-  const removeToCart = (productID: string) => {
-    if (cartId === undefined) {
-      let cartWithoutProduct = cart.filter(
-        (item) => item.product.id !== productID
-        );
-        setCart(cartWithoutProduct)
-      } else {
-      let newCart = cartToClient[cartId];
-      let number = 0;
-      let cartWithoutProduct = cartToClient[cartId].products.filter((item) => {
-        return item.product.id !== productID;
-      });
-      newCart.products = cartWithoutProduct;
       newCart.products.forEach((item) => {
         number += item.quantity;
       });
@@ -165,6 +151,35 @@ export const CashContextProvider = ({
       updateDoc(doc(db, `Users/${user?.uid}/Carts/${newCart.dbId}`), {
         ...newCart,
       });
+    }
+  };
+
+  const deleteCart = (dbId: string) => {
+    deleteDoc(doc(db, `Users/${user?.uid}/Carts/${dbId}`));
+  };
+
+  const removeToCart = (productID: string) => {
+    if (cartId === undefined) {
+      let cartWithoutProduct = cart.filter(
+        (item) => item.product.id !== productID
+      );
+      setCart(cartWithoutProduct);
+    } else {
+      let newCart = cartToClient.find((item) => item.dbId === cartId);
+      let number = 0;
+      if (newCart !== undefined) {
+        let cartWithoutProduct = newCart.products.filter((item) => {
+          return item.product.id !== productID;
+        });
+        newCart.products = cartWithoutProduct;
+        newCart.products.forEach((item) => {
+          number += item.quantity;
+        });
+        newCart.itemsNumber = number;
+        updateDoc(doc(db, `Users/${user?.uid}/Carts/${newCart.dbId}`), {
+          ...newCart,
+        });
+      }
     }
   };
 
@@ -178,21 +193,23 @@ export const CashContextProvider = ({
         setCart([...newListItems]);
       }
     } else {
-      let newListItems = cartToClient[cartId];
-      let itemIndex = newListItems.products.findIndex(
-        (item) => item.product.id === productID
-      );
+      let newListItems = cartToClient.find((item) => item.dbId === cartId);
+      if (newListItems !== undefined) {
+        let itemIndex = newListItems.products.findIndex(
+          (item) => item.product.id === productID
+        );
 
-      if (itemIndex !== -1) {
-        let number = 0;
-        newListItems.products[itemIndex].quantity++;
-        newListItems.products.forEach((item) => {
-          number += item.quantity;
-        });
-        newListItems.itemsNumber = number;
-        updateDoc(doc(db, `Users/${user?.uid}/Carts/${newListItems.dbId}`), {
-          ...newListItems,
-        });
+        if (itemIndex !== -1) {
+          let number = 0;
+          newListItems.products[itemIndex].quantity++;
+          newListItems.products.forEach((item) => {
+            number += item.quantity;
+          });
+          newListItems.itemsNumber = number;
+          updateDoc(doc(db, `Users/${user?.uid}/Carts/${newListItems.dbId}`), {
+            ...newListItems,
+          });
+        }
       }
     }
   };
@@ -207,24 +224,26 @@ export const CashContextProvider = ({
         setCart([...newListItems]);
       }
     } else {
-      let newListItems = cartToClient[cartId];
-      let itemIndex = newListItems.products.findIndex(
-        (item) => item.product.id === productID
-      );
+      let newListItems = cartToClient.find((item) => item.dbId === cartId);
+      if (newListItems !== undefined) {
+        let itemIndex = newListItems.products.findIndex(
+          (item) => item.product.id === productID
+        );
 
-      if (
-        itemIndex !== -1 &&
-        newListItems.products[itemIndex].quantity !== 1
-      ) {
-        let number = 0;
-        newListItems.products[itemIndex].quantity--;
-        newListItems.products.forEach((item) => {
-          number += item.quantity;
-        });
-        newListItems.itemsNumber = number;
-        updateDoc(doc(db, `Users/${user?.uid}/Carts/${newListItems.dbId}`), {
-          ...newListItems,
-        });
+        if (
+          itemIndex !== -1 &&
+          newListItems.products[itemIndex].quantity !== 1
+        ) {
+          let number = 0;
+          newListItems.products[itemIndex].quantity--;
+          newListItems.products.forEach((item) => {
+            number += item.quantity;
+          });
+          newListItems.itemsNumber = number;
+          updateDoc(doc(db, `Users/${user?.uid}/Carts/${newListItems.dbId}`), {
+            ...newListItems,
+          });
+        }
       }
     }
   };
@@ -242,7 +261,10 @@ export const CashContextProvider = ({
   };
 
   useEffect(() => {
-    const q = query(collection(db, `Users/${user?.uid}/Carts`), orderBy("id", "asc"));
+    const q = query(
+      collection(db, `Users/${user?.uid}/Carts`),
+      orderBy("id", "asc")
+    );
     const unsubscribe = onSnapshot(
       q,
       (docs) => {
@@ -273,6 +295,7 @@ export const CashContextProvider = ({
       value={{
         cart,
         cartId,
+        selectedCart,
         setIdforCartId,
         selectClientEvent,
         selectEventToggle,
@@ -283,6 +306,7 @@ export const CashContextProvider = ({
         addToClientCart,
         emptyClientCart,
         removeToCart,
+        deleteCart,
         increaseQuantity,
         reduceQuantity,
       }}

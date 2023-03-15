@@ -10,7 +10,7 @@ import ConfigIcon from "../../icons/config.svg";
 import NewProduct from "./NewProduct";
 import Config from "./Config";
 import { CashContextProvider } from "../../context/CashContext";
-import Kitchen from "../Kitchen";
+import Kitchen from "./Kitchen";
 import KitchenIcon from "../../icons/kitchen.svg";
 import { KitchenContextProvider } from "../../context/KitchenContext";
 
