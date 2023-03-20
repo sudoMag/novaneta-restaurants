@@ -59,7 +59,6 @@ export const ProductsContext = ({
   );
 
   const onChangeProducts = useCallback(() => {
-    console.log("funcion");
     const unsubscribe = onSnapshot(
       collection(db, `Users/${user?.uid}/Products`),
       (docs) => {
@@ -68,7 +67,6 @@ export const ProductsContext = ({
           const { name, description, price } = product.data();
           data.push({ id: product.id, name, description, price });
         });
-        console.log(data);
         setProducts(data);
       },
       (error) => {

@@ -19,7 +19,7 @@ const SelectedCart = css`
 `;
 
 const ClientCartPillName = styled.div<{
-  onSelectMode: boolean;
+  SelectMode: boolean;
   active?: boolean;
 }>`
   font-size: 1em;
@@ -42,8 +42,8 @@ const ClientCartPillName = styled.div<{
     return active ? SelectedCart : null;
   }}
 
-  ${({ onSelectMode }) => {
-    if (onSelectMode) {
+  ${({ SelectMode }) => {
+    if (SelectMode) {
       return ActiveButtons;
     }
   }}
@@ -90,7 +90,6 @@ const ClientCart = ({
 
   useEffect(() => {
     const order = orders.find((item) => item.dbId === cartInView.dbId);
-    console.log(cartInView.name, cartInView.dbId, order);
     if (order) {
       setOrderProductsNumber(order.itemsNumber);
     }
@@ -98,7 +97,7 @@ const ClientCart = ({
 
   return (
     <ClientCartPillName
-      onSelectMode={selectClientEvent}
+      SelectMode={selectClientEvent}
       active={cartId === cartInView.dbId ? true : false}
       onClick={() => {
         if (cartInView.dbId !== cartId) {

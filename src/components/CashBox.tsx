@@ -9,6 +9,7 @@ import Scale from "./animations/Scale";
 import useScroll from "../hooks/useScroll";
 import ProductInCart from "../interfaces/ProductInCart";
 import { KitchenContext } from "../context/KitchenContext";
+import OrderCard from "./OrderCard";
 
 const Container = styled.section`
   display: flex;
@@ -115,26 +116,6 @@ const DeleteButton = styled.div`
   cursor: pointer;
 `;
 
-const OrderCart = styled(ItemCard)`
-  flex-direction: column;
-  align-items: center;
-`;
-
-const ProgressBar = styled.div`
-  width: 90%;
-  height: 4px;
-`;
-
-const Bar = styled.div<{ porcentage: number }>`
-  width: 100%;
-  ${({ porcentage }) => `width: ${porcentage}%`};
-  height: 100%;
-  background-color: var(--bg-main-color);
-  transition-duration: 400ms;
-  transition-timing-function: ease-in-out;
-  border-radius: 10px;
-`;
-
 const CashBox = () => {
   const {
     cart,
@@ -148,10 +129,6 @@ const CashBox = () => {
   const [CartInView, setCartInView] = useState<ProductInCart[]>([]);
   const { formatCurrency } = useCurrencyFormat();
   const { ScrollRef, scrollToTop } = useScroll();
-
-  const calcPorcentage = (A: number, B: number) => {
-    return (A / B) * 100;
-  };
 
   useEffect(() => {
     scrollToTop();
@@ -169,22 +146,7 @@ const CashBox = () => {
     <Container ref={(el) => (ScrollRef.current = el)}>
       {ordersInView !== undefined
         ? ordersInView.map((order, index) => (
-          <OrderCart key={index}>
-              <CardContent>
-                <h4>Cocinando</h4>
-                <span>
-                  {order.prepared}/{order.itemsNumber}
-                </span>
-              </CardContent>
-              <ProgressBar>
-                <Bar
-                  porcentage={calcPorcentage(
-                    order.prepared,
-                    order.itemsNumber
-                  )}
-                />
-              </ProgressBar>
-            </OrderCart>
+          <OrderCard key={index} order={order} index={index}/>
         ))
         : null}
       {CartInView.map((item) => {

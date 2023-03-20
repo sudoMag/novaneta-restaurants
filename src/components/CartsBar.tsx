@@ -31,7 +31,7 @@ const SelectedCart = css`
   font-weight: bold;
 `;
 
-const Container = styled.section<{ onSelectMode: boolean }>`
+const Container = styled.section<{ SelectMode: boolean }>`
   display: flex;
   align-items: center;
   width: 100%;
@@ -39,8 +39,8 @@ const Container = styled.section<{ onSelectMode: boolean }>`
   border-radius: 10px;
   transition-duration: 400ms;
 
-  ${({ onSelectMode }) => {
-    if (onSelectMode) {
+  ${({ SelectMode }) => {
+    if (SelectMode) {
       return ActiveMode;
     }
   }}
@@ -69,7 +69,7 @@ const ClientCartsContainer = styled.div`
   }
 `;
 
-const ClientCartButton = styled.div<{ onSelectMode: boolean; active?: boolean }>`
+const ClientCartButton = styled.div<{ SelectMode: boolean; active?: boolean }>`
   height: 35px;
   border-radius: 8px;
   background-color: var(--bg-main-color);
@@ -89,8 +89,8 @@ const ClientCartButton = styled.div<{ onSelectMode: boolean; active?: boolean }>
     return active ? SelectedCart : null;
   }}
 
-  ${({ onSelectMode }) => {
-    if (onSelectMode) {
+  ${({ SelectMode }) => {
+    if (SelectMode) {
       return ActiveButtons;
     }
   }}
@@ -151,10 +151,10 @@ const CartsBar = () => {
   };
 
   return (
-    <Container onSelectMode={selectClientEvent}>
+    <Container className="noselect" SelectMode={selectClientEvent}>
       <NewCartButton src={newCartIcon} onClick={nameToggle} />
       {showNameInput ? (
-        <ClientCartButton onSelectMode={selectClientEvent}>
+        <ClientCartButton SelectMode={selectClientEvent}>
           <NewCartName
             value={name}
             onChange={handleName}

@@ -13,6 +13,14 @@ const Container = styled.section`
   justify-content: space-around;
 `;
 
+const NewLeftLayout = styled(LeftContent)`
+  width: 100%;
+`;
+
+const NewRightLayout = styled(RightContent)`
+  width: 50%;
+`;
+
 const StyledForm = styled.form``;
 
 const Input = styled.input`
@@ -55,13 +63,22 @@ const SendButton = styled.button`
   color: white;
   padding: 0.8em 0.8em;
   line-height: 1;
-  border-radius: 8px;
   cursor: pointer;
+  border-radius: 8px;
+  border: solid 1px #919191;
+`;
+
+const CreateButton = styled.div`
+  padding: 10px 20px;
+  background-color: var(--bg-color);
+  cursor: pointer;
+  border-radius: 8px;
   border: solid 1px #919191;
 `;
 
 const NewProduct = () => {
   const { addProduct } = useContext(Context);
+  const [showInputs, setShowInputs] = useState(false);
   const [data, setData] = useState<Product>({
     id: "",
     name: "",
@@ -72,7 +89,7 @@ const NewProduct = () => {
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     addProduct(data);
-    setData({id: "", name: "", description: "", price: 0 });
+    setData({ id: "", name: "", description: "", price: 0 });
   };
 
   const onInputChangeHandler = (
@@ -84,49 +101,58 @@ const NewProduct = () => {
     });
   };
 
+  const InputsViewToggle = () => {
+    setShowInputs(!showInputs);
+  };
+
   return (
     <Container>
-      <LeftContent>
+      <NewLeftLayout>
         <img src={Logo} alt="logo novaneta" />
         <h3>Productos</h3>
-        <PlansInfo/>
-      </LeftContent>
-      <RightContent>
-        <StyledForm onSubmit={(e: FormEvent<HTMLFormElement>) => handleSubmit(e)}>
-          <ProductDataBox>
-            <InputsContainer>
-              <InputAndText>
-                <Input
-                  placeholder="Hamburguesa"
-                  name="name"
-                  value={data.name}
-                  onChange={onInputChangeHandler}
-                />
-                <h5>Nombre</h5>
-              </InputAndText>
-              <InputAndText>
-                <Input
-                  placeholder="cuenta con doble carne y extra salsa de tomate"
-                  name="description"
-                  value={data.description}
-                  onChange={onInputChangeHandler}
-                />
-                <h5>Descripción</h5>
-              </InputAndText>
-              <InputAndText>
-                <Input
-                  type="number"
-                  name="price"
-                  value={data.price}
-                  onChange={onInputChangeHandler}
-                />
-                <h5>Precio</h5>
-              </InputAndText>
-              <SendButton type="submit">Crear Producto</SendButton>
-            </InputsContainer>
-          </ProductDataBox>
-        </StyledForm>
-      </RightContent>
+        <CreateButton className="noselect" onClick={InputsViewToggle}>Nuevo</CreateButton>
+        <PlansInfo />
+      </NewLeftLayout>
+      {showInputs ? (
+        <NewRightLayout>
+          <StyledForm
+            onSubmit={(e: FormEvent<HTMLFormElement>) => handleSubmit(e)}
+          >
+            <ProductDataBox>
+              <InputsContainer>
+                <InputAndText>
+                  <Input
+                    placeholder="Hamburguesa"
+                    name="name"
+                    value={data.name}
+                    onChange={onInputChangeHandler}
+                  />
+                  <h5>Nombre</h5>
+                </InputAndText>
+                <InputAndText>
+                  <Input
+                    placeholder="cuenta con doble carne y extra salsa de tomate"
+                    name="description"
+                    value={data.description}
+                    onChange={onInputChangeHandler}
+                  />
+                  <h5>Descripción</h5>
+                </InputAndText>
+                <InputAndText>
+                  <Input
+                    type="number"
+                    name="price"
+                    value={data.price}
+                    onChange={onInputChangeHandler}
+                  />
+                  <h5>Precio</h5>
+                </InputAndText>
+                <SendButton type="submit">Crear Producto</SendButton>
+              </InputsContainer>
+            </ProductDataBox>
+          </StyledForm>
+        </NewRightLayout>
+      ) : null}
     </Container>
   );
 };
