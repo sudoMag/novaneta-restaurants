@@ -30,6 +30,28 @@ const Input = styled.input`
   border: solid 1px white;
   text-align: center;
   padding: 10px;
+
+  &.file-input {
+    opacity: 0;
+    width: 150px;
+    height: 80px;
+    cursor: pointer;
+  }
+`;
+
+const UploadButton = styled.div<{
+  productImg: {
+    url: string | undefined;
+    progress: number;
+  };
+}>`
+  background: var(--gradient-1);
+  border-radius: 10px;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  ${({ productImg }) =>
+    productImg.url ? `background-image: url(${productImg.url});` : null}
 `;
 
 const ProductDataBox = styled.div`
@@ -77,19 +99,33 @@ const CreateButton = styled.div`
 `;
 
 const NewProduct = () => {
-  const { addProduct } = useContext(Context);
+  const {
+    addProduct,
+    upLoadProductImg,
+    productImg,
+    updateProduct,
+    setImg,
+    emptyImg,
+  } = useContext(Context);
   const [showInputs, setShowInputs] = useState(false);
+  const [editMode, setEditMode] = useState(false);
   const [data, setData] = useState<Product>({
     id: "",
     name: "",
     description: "",
     price: 0,
+    img_url: "",
   });
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    addProduct(data);
-    setData({ id: "", name: "", description: "", price: 0 });
+    if (editMode) {
+      updateProduct({ ...data, img_url: productImg.url });
+    } else {
+      addProduct({ ...data, img_url: productImg.url });
+    }
+    setData({ id: "", name: "", description: "", price: 0, img_url: "" });
+    emptyImg();
   };
 
   const onInputChangeHandler = (
@@ -103,6 +139,24 @@ const NewProduct = () => {
 
   const InputsViewToggle = () => {
     setShowInputs(!showInputs);
+    setEditMode(false);
+  };
+
+  const editProduct = (product: Product) => {
+    setEditMode(true);
+    setShowInputs(true);
+    setData({
+      ...data,
+      id: product.id,
+      name: product.name,
+      description: product.description,
+      price: product.price,
+    });
+    if (product.img_url) {
+      setImg(product.img_url);
+    } else {
+      setImg("");
+    }
   };
 
   return (
@@ -110,8 +164,10 @@ const NewProduct = () => {
       <NewLeftLayout>
         <img src={Logo} alt="logo novaneta" />
         <h3>Productos</h3>
-        <CreateButton className="noselect" onClick={InputsViewToggle}>Nuevo</CreateButton>
-        <PlansInfo />
+        <CreateButton className="noselect" onClick={InputsViewToggle}>
+          Nuevo
+        </CreateButton>
+        <PlansInfo editProduct={editProduct} />
       </NewLeftLayout>
       {showInputs ? (
         <NewRightLayout>
@@ -146,6 +202,18 @@ const NewProduct = () => {
                     onChange={onInputChangeHandler}
                   />
                   <h5>Precio</h5>
+                </InputAndText>
+                <InputAndText>
+                  <UploadButton productImg={productImg}>
+                    <Input
+                      className="file-input"
+                      type="file"
+                      name="imageFile"
+                      accept="image/jpeg, image/png"
+                      onChange={upLoadProductImg}
+                    />
+                  </UploadButton>
+                  <h5>imagen</h5>
                 </InputAndText>
                 <SendButton type="submit">Crear Producto</SendButton>
               </InputsContainer>

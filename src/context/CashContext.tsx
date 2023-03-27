@@ -96,6 +96,7 @@ export const CashContextProvider = ({
       products: [],
       itemsNumber: 0,
       status: "empty",
+      amount: 0,
     }).then((doc) => {
       return doc.id;
     });
@@ -108,6 +109,7 @@ export const CashContextProvider = ({
         (item) => item.product.id === product.id
       );
       let number = 0;
+      let amount = 0;
       if (machProductIndex !== -1) {
         if (newCart.products.length !== 0) {
           newCart.products[machProductIndex].quantity++;
@@ -117,6 +119,10 @@ export const CashContextProvider = ({
         }
         newCart.itemsNumber = number;
         newCart.status = "ordering";
+        newCart.products.forEach((item) => {
+          amount += item.product.price * item.quantity;
+        });
+        newCart.amount = amount;
       } else if (machProductIndex === -1) {
         newCart.products.push({
           product: product,
@@ -127,6 +133,10 @@ export const CashContextProvider = ({
         });
         newCart.itemsNumber = number;
         newCart.status = "ordering";
+        newCart.products.forEach((item) => {
+          amount += item.product.price * item.quantity;
+        });
+        newCart.amount = amount;
       }
       updateDoc(doc(db, `Users/${user?.uid}/Carts/${newCart.dbId}`), {
         ...newCart,
@@ -137,6 +147,7 @@ export const CashContextProvider = ({
   const emptyClientCart = (id: string, sendedToKitchen?: boolean) => {
     let newCart = cartToClient.find((item) => item.dbId === id);
     let number = 0;
+    let amount = 0;
     if (newCart !== undefined) {
       newCart.products = [];
       if (sendedToKitchen) {
@@ -148,6 +159,10 @@ export const CashContextProvider = ({
         number += item.quantity;
       });
       newCart.itemsNumber = number;
+      newCart.products.forEach((item) => {
+        amount += item.product.price * item.quantity;
+      });
+      newCart.amount = amount;
       updateDoc(doc(db, `Users/${user?.uid}/Carts/${newCart.dbId}`), {
         ...newCart,
       });
@@ -167,6 +182,7 @@ export const CashContextProvider = ({
     } else {
       let newCart = cartToClient.find((item) => item.dbId === cartId);
       let number = 0;
+      let amount = 0;
       if (newCart !== undefined) {
         let cartWithoutProduct = newCart.products.filter((item) => {
           return item.product.id !== productID;
@@ -176,6 +192,10 @@ export const CashContextProvider = ({
           number += item.quantity;
         });
         newCart.itemsNumber = number;
+        newCart.products.forEach((item) => {
+          amount += item.product.price * item.quantity;
+        });
+        newCart.amount = amount;
         updateDoc(doc(db, `Users/${user?.uid}/Carts/${newCart.dbId}`), {
           ...newCart,
         });
@@ -201,11 +221,16 @@ export const CashContextProvider = ({
 
         if (itemIndex !== -1) {
           let number = 0;
+          let amount = 0;
           newListItems.products[itemIndex].quantity++;
           newListItems.products.forEach((item) => {
             number += item.quantity;
           });
           newListItems.itemsNumber = number;
+          newListItems.products.forEach((item) => {
+            amount += item.product.price * item.quantity;
+          });
+          newListItems.amount = amount;
           updateDoc(doc(db, `Users/${user?.uid}/Carts/${newListItems.dbId}`), {
             ...newListItems,
           });
@@ -235,11 +260,16 @@ export const CashContextProvider = ({
           newListItems.products[itemIndex].quantity !== 1
         ) {
           let number = 0;
+          let amount = 0;
           newListItems.products[itemIndex].quantity--;
           newListItems.products.forEach((item) => {
             number += item.quantity;
           });
           newListItems.itemsNumber = number;
+          newListItems.products.forEach((item) => {
+            amount += item.product.price * item.quantity;
+          });
+          newListItems.amount = amount;
           updateDoc(doc(db, `Users/${user?.uid}/Carts/${newListItems.dbId}`), {
             ...newListItems,
           });
@@ -270,7 +300,8 @@ export const CashContextProvider = ({
       (docs) => {
         let data: CartToClient[] = [];
         docs.forEach((item) => {
-          const { id, name, type, products, itemsNumber, status } = item.data();
+          const { id, name, type, products, itemsNumber, status, amount } =
+            item.data();
           data.push({
             dbId: item.id,
             id,
@@ -279,6 +310,7 @@ export const CashContextProvider = ({
             products,
             itemsNumber,
             status,
+            amount,
           });
         });
         setCartToClient(data);

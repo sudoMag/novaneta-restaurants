@@ -1,12 +1,15 @@
 import { useContext } from "react";
 import styled, {css} from "styled-components";
 import { ItemCard } from "../../components/CashBox";
-import { KitchenContext } from "../../context/KitchenContext";
-import TableIcon from "../../icons/table.svg";
+import { KitchenContext } from "../../context/KitchenContext";/*
+import TableIcon from "../../icons/table.svg"; */
 import FoodIcon from "../../icons/food.svg";
 import CheckBox from "../../components/CheckBox";
 import PlateIcon from "../../icons/plate.svg";
 import Opacity from "../../components/animations/Opacity";
+import { PayContext } from "../../context/PayContext";
+import Order from "../../interfaces/Order";
+import { CashContext } from "../../context/CashContext";
 
 const Container = styled.section`
   width: 100%;
@@ -81,6 +84,7 @@ const SuccesButton = styled.img`
   border-radius: 10px;
   opacity: 0;
   animation: ${Opacity} 200ms ease-in-out forwards;
+  cursor pointer;
 `;
 
 const ScrollFrame = styled.div`
@@ -90,7 +94,18 @@ const ScrollFrame = styled.div`
 `;
 
 const Kitchen = () => {
-  const { orders } = useContext(KitchenContext);
+  const { orders , endOrder} = useContext(KitchenContext);
+  const { addDebt } = useContext(PayContext);
+  const {cartToClient} = useContext(CashContext);
+
+  const successOrder = (order: Order ) => {
+    const cart = cartToClient.find((item) => item.dbId === order.dbId)
+    if (cart !== undefined) {
+      console.log(cart)
+      addDebt(cart, order)
+      endOrder(order.thisDocId);
+    }
+  }
 
   return (
     <Container>
@@ -123,7 +138,7 @@ const Kitchen = () => {
                 ))}
               </ul>
               {order.itemsNumber === order.prepared ? (
-                <SuccesButton src={PlateIcon} />
+                <SuccesButton src={PlateIcon} onClick={() => successOrder(order)}/>
               ) : null}
             </CartProducts>
           ))}

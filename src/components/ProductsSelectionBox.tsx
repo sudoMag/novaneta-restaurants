@@ -47,7 +47,7 @@ const ProductCard = styled.div<{ number: number }>`
   }
 `;
 
-const ImgContainer = styled.div`
+const ImgContainer = styled.div<{ imgUrl: string | undefined }>`
   width: 100%;
   height: 60%;
   background: rgb(124, 68, 15);
@@ -56,11 +56,16 @@ const ImgContainer = styled.div`
     var(--bg-main-color) -40%,
     rgba(29, 30, 32, 1) 100%
   );
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  ${({ imgUrl }) => (imgUrl ? `background-image: url(${imgUrl});` : null)}
 `;
 
 const PricePill = styled.div`
   padding: 0.2em 0.5em;
   border-radius: 10px;
+  backdrop-filter: blur(10px);
   border: solid 1px gray;
   background-color: #2727286b;
   text-align: end;
@@ -83,21 +88,23 @@ const ProductsSelectionBox = () => {
 
   return (
     <Container>
-      {Products.length !== 0
-        ? Products.map((product, index) => {
-            return (
-              <ProductCard
-                key={product.id}
-                number={index}
-                onClick={() => addToCart(product)}
-              >
-                <ImgContainer />
-                <PricePill>$ {formatCurrency("CLP", product.price)}</PricePill>
-                <h4>{product.name}</h4>
-              </ProductCard>
-            );
-          })
-        : <Spiner src={pizaSpinner} />}
+      {Products.length !== 0 ? (
+        Products.map((product, index) => {
+          return (
+            <ProductCard
+              key={product.id}
+              number={index}
+              onClick={() => addToCart(product)}
+            >
+              <ImgContainer imgUrl={product.img_url} />
+              <PricePill>$ {formatCurrency("CLP", product.price)}</PricePill>
+              <h4>{product.name}</h4>
+            </ProductCard>
+          );
+        })
+      ) : (
+        <Spiner src={pizaSpinner} />
+      )}
     </Container>
   );
 };

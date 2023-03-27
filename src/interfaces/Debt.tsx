@@ -7,5 +7,6 @@ export default interface Debt extends CartToClient {
   date: Timestamp;
   status: string;
   payType: string;
-  clientId: string;
+  clientId?: string;
+  orderId: string;
 }

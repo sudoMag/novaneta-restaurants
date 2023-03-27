@@ -54,6 +54,7 @@ const NewCartButton = styled.img`
   border-radius: 8px;
   padding: 10px 10px;
   background-color: var(--bg-main-color);
+  background: var(--gradient-1);
   border: 1px solid #383838;
   margin: 10px 20px;
   cursor: pointer;

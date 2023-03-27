@@ -9,6 +9,7 @@ import {
 } from "react";
 import { Context } from "../context/ProductContext";
 import SelectButton from "./PlanSelectButton";
+import Product from "../interfaces/Product";
 
 const Container = styled.section`
   margin: 10px;
@@ -116,14 +117,14 @@ export const PlanDescription = styled.article`
   overflow: hidden;
 `;
 
-export const PlansInfo = () => {
+export const PlansInfo = ({
+  editProduct,
+}: {
+  editProduct: (product: Product) => void;
+}) => {
   const { Products, onChangeProducts } = useContext(Context);
   const [layoutMap, setLayoutMap] = useState<number[]>([
-    50,
-    200,
-    200,
-    200,
-    200,
+    50, 200, 200, 200, 200,
   ]);
   const [initialAxis, setInitialAxis] = useState<{
     axis: number;
@@ -175,24 +176,16 @@ export const PlansInfo = () => {
           onMouseUp={() => setInitialAxis({ axis: 0, index: undefined })}
         >
           <ColumnHeader>Nro</ColumnHeader>
-          <ColumnHeader
-            onMouseDown={(e) => writeInitialAxis(e, 1)}
-          >
+          <ColumnHeader onMouseDown={(e) => writeInitialAxis(e, 1)}>
             ID
           </ColumnHeader>
-          <ColumnHeader
-            onMouseDown={(e) => writeInitialAxis(e, 2)}
-          >
+          <ColumnHeader onMouseDown={(e) => writeInitialAxis(e, 2)}>
             Nombre
           </ColumnHeader>
-          <ColumnHeader
-            onMouseDown={(e) => writeInitialAxis(e, 3)}
-          >
+          <ColumnHeader onMouseDown={(e) => writeInitialAxis(e, 3)}>
             Precio de venta
           </ColumnHeader>
-          <ColumnHeader
-            onMouseDown={(e) => writeInitialAxis(e, 4)}
-          >
+          <ColumnHeader onMouseDown={(e) => writeInitialAxis(e, 4)}>
             Descripción
           </ColumnHeader>
         </ColumsHeadTitleContainer>
@@ -203,6 +196,7 @@ export const PlansInfo = () => {
                 className={Product.name === "Enterprise" ? "premium-plan" : ""}
                 key={index}
                 gridColumnsLayout={makeLayoutString(layoutMap)}
+                onClick={() => editProduct(Product)}
               >
                 <div>{index + 1}</div>
                 <div>{Product.id}</div>

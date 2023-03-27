@@ -12,7 +12,9 @@ import Config from "./Config";
 import { CashContextProvider } from "../../context/CashContext";
 import Kitchen from "./Kitchen";
 import KitchenIcon from "../../icons/kitchen.svg";
+import StatisticsIcon from "../../icons/statistics.svg";
 import { KitchenContextProvider } from "../../context/KitchenContext";
+import { PayContextProvider } from "../../context/PayContext";
 
 const Container = styled.section`
   display: flex;
@@ -121,6 +123,11 @@ const Panel = () => {
                   <img src={NewProductIcon} alt="new" />
                 </RouteLink>
               </li>
+              <li>
+                <RouteLink to="./statistics">
+                  <img src={StatisticsIcon} alt="statistics" />
+                </RouteLink>
+              </li>
             </OptionsContainer>
             <BottonOptionsContainer>
               <li>
@@ -135,12 +142,15 @@ const Panel = () => {
         <RightContainer>
           <CashContextProvider>
             <KitchenContextProvider>
-              <Routes>
-                <Route path="/cash/*" element={<Resume />} />
-                <Route path="kitchen" element={<Kitchen />} />
-                <Route path="new" element={<NewProduct />} />
-                <Route path="config/*" element={<Config />} />
-              </Routes>
+              <PayContextProvider>
+                <Routes>
+                  <Route path="/cash/*" element={<Resume />} />
+                  <Route path="kitchen" element={<Kitchen />} />
+                  <Route path="new" element={<NewProduct />} />
+                  <Route path="statistics" element={<h1>Estadisticas</h1>} />
+                  <Route path="config/*" element={<Config />} />
+                </Routes>
+              </PayContextProvider>
             </KitchenContextProvider>
           </CashContextProvider>
         </RightContainer>

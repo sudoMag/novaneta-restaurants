@@ -1,9 +1,9 @@
-import { useState, useContext, useEffect } from "react";
+import { useContext } from "react";
+import { NumericFormat } from "react-number-format";
 import { NavLink } from "react-router-dom";
 import styled from "styled-components";
 import { CashContext } from "../context/CashContext";
-import { KitchenContext } from "../context/KitchenContext";
-import useCurrencyFormat from "../hooks/useCurrencyFormat";
+import { PayContext } from "../context/PayContext";
 
 const Container = styled.section`
   display: flex;
@@ -62,31 +62,9 @@ const OthersContainer = styled.div`
 `;
 
 const PayBar = () => {
-  const [totalToPay, setTotalToPay] = useState(0);
-  const { cart, cartToClient, selectedCart, selectEventToggle } =
+  const {selectEventToggle } =
     useContext(CashContext);
-  const { ordersInView } = useContext(KitchenContext);
-  const { formatCurrency } = useCurrencyFormat();
-
-  useEffect(() => {
-    let total = 0;
-    if (selectedCart === -1) {
-      cart.forEach((item) => {
-        total += item.product.price * item.quantity;
-      });
-      setTotalToPay(total);
-    } else {
-      cartToClient[selectedCart].products.forEach((item) => {
-        total += item.product.price * item.quantity;
-      });
-      ordersInView?.forEach((order) => {
-        order.products.forEach((item) => {
-          total += item.product.price * item.quantity;
-        });
-      });
-      setTotalToPay(total);
-    }
-  }, [cart, cartToClient, ordersInView, selectedCart]);
+  const { totalToPay } = useContext(PayContext);
 
   return (
     <Container>
@@ -100,7 +78,17 @@ const PayBar = () => {
         )}
       </OthersContainer>
       <h1>
-        Total a Pagar: <span>$ {formatCurrency("CLP", totalToPay)}</span>
+        Total a Pagar:{" "}
+        <span>
+          ${" "}
+          <NumericFormat
+            allowLeadingZeros
+            thousandSeparator="."
+            decimalSeparator=","
+            displayType="text"
+            value={totalToPay}
+          />
+        </span>
       </h1>
       {totalToPay === 0 ? (
         <DisableButton className="disable">Siguiente</DisableButton>

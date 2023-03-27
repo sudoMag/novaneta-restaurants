@@ -4,20 +4,34 @@ import {
   DocumentData,
   getDocs,
   limit,
+  onSnapshot,
+  orderBy,
   query,
   Timestamp,
   where,
 } from "firebase/firestore";
-import { createContext, useRef, useState, useContext, useMemo } from "react";
+import {
+  createContext,
+  useRef,
+  useState,
+  useContext,
+  useMemo,
+  useEffect,
+} from "react";
 import { db } from "../firebase/configuration";
 import CartToClient from "../interfaces/CartToClient";
 import Debt from "../interfaces/Debt";
+import Order from "../interfaces/Order";
+import { CashContext } from "./CashContext";
 import { DeviceContext } from "./DeviceContext";
+import { KitchenContext } from "./KitchenContext";
 import { UserContext } from "./UserContext";
 
 interface Pay {
+  totalToPay: number;
   debts: Debt[];
-  addDebt: (cart: CartToClient, payType: string, clientId: string) => void;
+  debtsInView: Debt[];
+  addDebt: (cart: CartToClient, order: Order) => void;
   clients: DocumentData[];
   registNewClient: (client: {
     firstName: string;
@@ -33,8 +47,10 @@ interface Pay {
 }
 
 export const PayContext = createContext<Pay>({
+  totalToPay: 0,
   debts: [],
-  addDebt: (cart: CartToClient, payType: string, clientId: string) => {},
+  debtsInView: [],
+  addDebt: (cart: CartToClient, order: Order) => {},
   clients: [],
   registNewClient: (client: {
     firstName: string;
@@ -55,20 +71,26 @@ export const PayContextProvider = ({
   children: JSX.Element | JSX.Element[];
 }) => {
   const [debts, setDebts] = useState<Debt[]>([]);
+  const [debtsInView, setDebtsInView] = useState<Debt[]>([]);
   const [clients, setClients] = useState<DocumentData[]>([]);
   const { user } = useContext(UserContext);
   const { thisDevice } = useContext(DeviceContext);
+  const { ordersInView } = useContext(KitchenContext);
+  const { cartId, cartToClient, selectedCart } = useContext(CashContext);
+  const [totalToPay, setTotalToPay] = useState(0);
   const canceled = useRef(false);
 
-  const addDebt = (cart: CartToClient, payType: string, clientId: string) => {
+  const addDebt = (cart: CartToClient, order: Order) => {
     if (thisDevice) {
       addDoc(collection(db, `Users/${user?.uid}/Payments`), {
         ...cart,
+        amount: order.amount,
+        products: order.products,
+        itemsNumber: order.itemsNumber,
         status: "debt",
         casherId: thisDevice.id,
-        payType: payType,
-        clientId: clientId,
-        date: Timestamp,
+        date: Timestamp.now(),
+        orderId: order.dbId,
       }).then((doc) => {
         return doc.id;
       });
@@ -113,7 +135,6 @@ export const PayContextProvider = ({
           };
         });
         if (!canceled.current) {
-          console.log(info)
           setClients(info);
         }
       },
@@ -124,9 +145,88 @@ export const PayContextProvider = ({
     [user?.uid]
   );
 
+  useEffect(() => {
+    setDebtsInView([...debts.filter((item) => item.dbId === cartId)]);
+  }, [cartId, debts]);
+
+  console.log(debts, debtsInView);
+
+  useEffect(() => {
+    let total = 0;
+    if (selectedCart !== -1) {
+      total = cartToClient[selectedCart].amount;
+      ordersInView?.forEach((order) => {
+        total += order.amount;
+      });
+      debtsInView?.forEach((debt) => {
+        total += debt.amount;
+      });
+      setTotalToPay(total);
+    }
+  }, [cartToClient, debtsInView, ordersInView, selectedCart]);
+
+  useEffect(() => {
+    const q = query(
+      collection(db, `Users/${user?.uid}/Payments`),
+      where("status", "!=", "success"),
+      orderBy("status", "asc"),
+      orderBy("date", "asc")
+    );
+    const unsubscribe = onSnapshot(
+      q,
+      (docs) => {
+        let data: Debt[] = [];
+        docs.forEach((item) => {
+          const {
+            dbId,
+            id,
+            name,
+            type,
+            products,
+            itemsNumber,
+            status,
+            casherId,
+            payType,
+            date,
+            orderId,
+            amount,
+          } = item.data();
+          data.push({
+            dbId,
+            id,
+            name,
+            type,
+            products,
+            itemsNumber,
+            status,
+            casherId,
+            payType,
+            date,
+            orderId,
+            amount,
+            thisDocId: item.id,
+          });
+        });
+        setDebts(data);
+      },
+      (error) => {
+        console.error(error);
+      }
+    );
+    return unsubscribe;
+  }, [user?.uid]);
+
   return (
     <PayContext.Provider
-      value={{ debts, addDebt, clients, registNewClient, findClient }}
+      value={{
+        totalToPay,
+        debts,
+        debtsInView,
+        addDebt,
+        clients,
+        registNewClient,
+        findClient,
+      }}
     >
       {children}
     </PayContext.Provider>

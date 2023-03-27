@@ -4,27 +4,54 @@ import {
   addDoc,
   onSnapshot,
   Unsubscribe,
+  updateDoc,
+  doc,
 } from "firebase/firestore";
-import { db } from "../firebase/configuration";
+import { db, storage } from "../firebase/configuration";
 import Product from "../interfaces/Product";
-import { createContext, useState, useMemo, useRef, useContext, useCallback } from "react";
+import {
+  createContext,
+  useState,
+  useMemo,
+  useRef,
+  useContext,
+  useCallback,
+  ChangeEvent,
+} from "react";
 import { UserContext } from "./UserContext";
+import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 
 interface IContext {
   Products: Product[];
+  productImg: {
+    url: undefined | string;
+    progress: number;
+  };
   ProductsInfo: {
     get: () => Promise<void>;
     cancel: () => void;
   };
   onChangeProducts: () => Unsubscribe;
   addProduct: (product: Product) => void;
+  updateProduct: (product: Product) => void;
+  upLoadProductImg: (e: ChangeEvent<HTMLInputElement>) => void;
+  emptyImg: () => void;
+  setImg: (img: string) => void;
 }
 
 export const Context = createContext<IContext>({
   Products: [],
+  productImg: {
+    url: undefined,
+    progress: 0,
+  },
   ProductsInfo: { get: async () => {}, cancel: () => {} },
-  onChangeProducts: () => (() => {}),
+  onChangeProducts: () => () => {},
   addProduct: (product: Product) => {},
+  updateProduct: (product: Product) => {},
+  upLoadProductImg: (e: ChangeEvent<HTMLInputElement>) => {},
+  emptyImg: () => {},
+  setImg: (img: string) => {},
 });
 
 export const ProductsContext = ({
@@ -35,6 +62,13 @@ export const ProductsContext = ({
   const [Products, setProducts] = useState<Product[]>([]);
   const cancelled = useRef(false);
   const { user } = useContext(UserContext);
+  const [productImg, setProductImg] = useState<{
+    url: undefined | string;
+    progress: number;
+  }>({
+    url: undefined,
+    progress: 0,
+  });
 
   const ProductsInfo = useMemo(
     () => ({
@@ -64,8 +98,8 @@ export const ProductsContext = ({
       (docs) => {
         let data: Product[] = [];
         docs.forEach((product) => {
-          const { name, description, price } = product.data();
-          data.push({ id: product.id, name, description, price });
+          const { name, description, price, img_url } = product.data();
+          data.push({ id: product.id, name, description, price, img_url });
         });
         setProducts(data);
       },
@@ -73,7 +107,7 @@ export const ProductsContext = ({
         console.error(error);
       }
     );
-  return () => unsubscribe;
+    return () => unsubscribe;
   }, [user?.uid]);
 
   const addProduct = (product: Product) => {
@@ -82,9 +116,74 @@ export const ProductsContext = ({
     }
   };
 
+  const updateProduct = (product: Product) => {
+    if (user) {
+      updateDoc(doc(db, `Users/${user?.uid}/Products/${product.id}`), { ...product });
+    }
+  };
+
+  const upLoadProductImg = (e: ChangeEvent<HTMLInputElement>) => {
+    const img: FileList | null = e.currentTarget.files;
+
+    if (img !== null) {
+      const storageRef = ref(
+        storage,
+        `images/productImges/${img[0].name}`
+      );
+
+      const uploadTask = uploadBytesResumable(storageRef, img[0]);
+
+      uploadTask.on(
+        "state_changed",
+        (snapshot) => {
+          setProductImg({
+            ...productImg,
+            progress: (snapshot.bytesTransferred / snapshot.totalBytes) * 100,
+          });
+        },
+        (error) => {
+          console.error(error);
+        },
+        () => {
+          console.log("Upload complete");
+          getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+            setProductImg({
+              ...productImg,
+              url: downloadURL,
+            });
+          });
+        }
+      );
+    }
+  };
+
+  const setImg = (img: string) => {
+    setProductImg({
+      ...productImg,
+      url: img,
+    });
+  };
+
+  const emptyImg = () => {
+    setProductImg({
+      url: undefined,
+      progress: 0,
+    });
+  };
+
   return (
     <Context.Provider
-      value={{ Products, ProductsInfo, onChangeProducts, addProduct }}
+      value={{
+        Products,
+        productImg,
+        ProductsInfo,
+        onChangeProducts,
+        addProduct,
+        updateProduct,
+        upLoadProductImg,
+        emptyImg,
+        setImg,
+      }}
     >
       {children}
     </Context.Provider>

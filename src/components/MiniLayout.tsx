@@ -12,6 +12,11 @@ const Container = styled.section`
   overflow: hidden;
   opacity: 0;
   animation: ${OpacityAndTranslate} ease-in-out 200ms 3ms forwards;
+  background: linear-gradient(
+    190deg,
+    var(--bg-gradient-color) -30%,
+    rgba(29, 30, 32, 1) 100%
+  );
 `;
 
 const MiniNavBar = styled.div`
@@ -143,8 +148,10 @@ const MiniLayout = () => {
         </MiniBar>
       </MiniLeftContent>
       <MiniRightContent>
-        <MiniBar><Text/></MiniBar>
-        <Text/>
+        <MiniBar>
+          <Text />
+        </MiniBar>
+        <Text />
         <MiniSelectionBox>
           <ItemMiniCard />
           <ItemMiniCard />

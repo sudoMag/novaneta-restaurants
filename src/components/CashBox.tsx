@@ -1,7 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
 import { CashContext } from "../context/CashContext";
-import useCurrencyFormat from "../hooks/useCurrencyFormat";
 import TrashImg from "../icons/trash.svg";
 import IncreaseIcon from "../icons/increase-button.svg";
 import ReduceIcon from "../icons/reduce-button.svg";
@@ -10,6 +9,8 @@ import useScroll from "../hooks/useScroll";
 import ProductInCart from "../interfaces/ProductInCart";
 import { KitchenContext } from "../context/KitchenContext";
 import OrderCard from "./OrderCard";
+import { PayContext } from "../context/PayContext";
+import { NumericFormat } from "react-number-format";
 
 const Container = styled.section`
   display: flex;
@@ -65,7 +66,7 @@ const NameAndPrice = styled.div`
 `;
 
 const QuantityPill = styled.div`
-  background-color: #680568;
+  background: var(--span-gradient);
   padding: 0.3em 0.6em;
   border-radius: 15px;
   margin-top: -20px;
@@ -96,11 +97,12 @@ const ButtonsContainer = styled.div`
   }
 
   & #button-increase {
-    background-color: #661358;
+    background: var(--span-gradient);
   }
 
   & #button-reduce {
     background-color: var(--bg-main-color);
+    background: var(--gradient-1);
   }
 `;
 
@@ -111,6 +113,7 @@ const TrashImage = styled.img`
 const DeleteButton = styled.div`
   padding: 8px;
   background-color: var(--bg-main-color);
+  background: var(--gradient-1);
   display: flex;
   border-radius: 15px;
   cursor: pointer;
@@ -126,8 +129,8 @@ const CashBox = () => {
     removeToCart,
   } = useContext(CashContext);
   const { ordersInView } = useContext(KitchenContext);
+  const { debtsInView } = useContext(PayContext);
   const [CartInView, setCartInView] = useState<ProductInCart[]>([]);
-  const { formatCurrency } = useCurrencyFormat();
   const { ScrollRef, scrollToTop } = useScroll();
 
   useEffect(() => {
@@ -144,10 +147,25 @@ const CashBox = () => {
 
   return (
     <Container ref={(el) => (ScrollRef.current = el)}>
+      {CartInView.length === 0 &&
+      ordersInView?.length === 0 &&
+      debtsInView.length === 0
+        ? <img src="/enpty cart.png" alt=""/>
+        : null}
       {ordersInView !== undefined
         ? ordersInView.map((order, index) => (
-          <OrderCard key={index} order={order} index={index}/>
-        ))
+            <OrderCard
+              key={index}
+              order={order}
+              index={index}
+              success={false}
+            />
+          ))
+        : null}
+      {debtsInView.length !== 0
+        ? debtsInView.map((debt, index) => (
+            <OrderCard key={index} success debt={debt} />
+          ))
         : null}
       {CartInView.map((item) => {
         return (
@@ -156,12 +174,27 @@ const CashBox = () => {
             <CardContent>
               <NameAndPrice>
                 <h4>{item.product.name}</h4>
-                <span>$ {formatCurrency("CLP", item.product.price)}</span>
+                <span>
+                  ${" "}
+                  <NumericFormat
+                    allowLeadingZeros
+                    thousandSeparator="."
+                    decimalSeparator=","
+                    displayType="text"
+                    value={item.product.price}
+                  />
+                </span>
               </NameAndPrice>
               <TotalAndButtons>
                 <TotalPrice>
                   Total: ${" "}
-                  {formatCurrency("CLP", item.product.price * item.quantity)}
+                  <NumericFormat
+                    allowLeadingZeros
+                    thousandSeparator="."
+                    decimalSeparator=","
+                    displayType="text"
+                    value={item.product.price * item.quantity}
+                  />
                 </TotalPrice>
                 <ButtonsContainer>
                   <img

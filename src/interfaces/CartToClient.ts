@@ -8,6 +8,7 @@ interface CartToClient {
   products: ProductInCart[];
   itemsNumber: number;
   status: string;
+  amount: number
 }
 
 export default CartToClient;

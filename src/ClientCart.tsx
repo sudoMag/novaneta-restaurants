@@ -5,6 +5,7 @@ import { CashContext } from "./context/CashContext";
 import CartToClient from "./interfaces/CartToClient";
 import DeleteIcon from "./icons/deletex-circle.svg";
 import { KitchenContext } from "./context/KitchenContext";
+import { PayContext } from "./context/PayContext";
 
 const ActiveButtons = css`
   padding: 10px 1em;
@@ -13,7 +14,7 @@ const ActiveButtons = css`
 `;
 
 const SelectedCart = css`
-  background-color: var(--bg-color);
+  background: var(--bg-color);
   color: var(--bg-main-color);
   font-weight: bold;
 `;
@@ -26,6 +27,7 @@ const ClientCartPillName = styled.div<{
   height: 35px;
   border-radius: 8px;
   background-color: var(--bg-main-color);
+  background: var(--gradient-1);
   border: 1px solid #383838;
   display: flex;
   align-items: center;
@@ -86,14 +88,25 @@ const ClientCart = ({
   const { cartId, setIdforCartId, selectClientEvent, deleteCart } =
     useContext(CashContext);
   const { orders } = useContext(KitchenContext);
+  const { debts } = useContext(PayContext);
   const [orderProductsNumber, setOrderProductsNumber] = useState(0);
+  const [debtProductsNumber, setDebtProductsNumber] = useState(0);
 
   useEffect(() => {
     const order = orders.find((item) => item.dbId === cartInView.dbId);
+    let number = 0;
+    let debtsToClient = debts.filter((item) => item.dbId === cartInView.dbId);
+    debtsToClient?.forEach((debt) => {
+      debt.products.forEach((item) => {
+        number += item.quantity;
+      });
+    })
+    setDebtProductsNumber(number);
+
     if (order) {
       setOrderProductsNumber(order.itemsNumber);
     }
-  }, [cartInView.dbId, cartInView.name, orders]);
+  }, [cartInView.dbId, cartInView.name, debts, orders]);
 
   return (
     <ClientCartPillName
@@ -114,11 +127,14 @@ const ClientCart = ({
             <img src={DeleteIcon} alt="delete" />
           </NumberPill>
           <NumberPill id="number">
-            {cartInView.itemsNumber + orderProductsNumber}
+            {cartInView.itemsNumber + orderProductsNumber + debtProductsNumber}
           </NumberPill>
         </>
-      ) : cartInView.itemsNumber + orderProductsNumber !== 0 ? (
-        <NumberPill>{cartInView.itemsNumber + orderProductsNumber}</NumberPill>
+      ) : cartInView.itemsNumber + orderProductsNumber + debtProductsNumber !==
+        0 ? (
+        <NumberPill>
+          {cartInView.itemsNumber + orderProductsNumber + debtProductsNumber}
+        </NumberPill>
       ) : null}
     </ClientCartPillName>
   );

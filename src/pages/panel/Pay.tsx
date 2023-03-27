@@ -2,7 +2,6 @@ import { ChangeEvent, useContext, useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import { LeftContent, RightContent } from "../../components/SplittedPanel";
 import { CashContext } from "../../context/CashContext";
-import useCurrencyFormat from "../../hooks/useCurrencyFormat";
 import Logo from "../../icons/logowhite.svg";
 import LogoBlack from "../../icons/logoblack.svg";
 import ReactToPrint from "react-to-print";
@@ -12,11 +11,9 @@ import { KitchenContext } from "../../context/KitchenContext";
 import CartToClient from "../../interfaces/CartToClient";
 import newClientIcon from "../../icons/newcart.svg";
 import { PayContext } from "../../context/PayContext";
-import Client from "../../interfaces/Client";
 import { DocumentData } from "firebase/firestore";
 import Scale from "../../components/animations/Scale";
 import { NumericFormat, PatternFormat } from "react-number-format";
-import { usePatternFormat } from "react-number-format/types/pattern_format";
 import formatStringByPattern from "format-string-by-pattern";
 
 const Invoice = styled.div`
@@ -59,7 +56,9 @@ const ItemsContainer = styled.div``;
 
 const Item = styled.div`
   color: black;
-  display: flex;
+  display: grid;
+  grid-template-columns: 2fr 0.5fr 0.5fr;
+  gap: 10px;
   padding: 0 15px;
   justify-content: space-between;
   margin: 3px;
@@ -205,8 +204,7 @@ const SearchClientsBox = styled.div`
 `;
 
 const Pay = () => {
-  const [totalToPay, setTotalToPay] = useState(0);
-  const [cartInView, setCartInView] = useState<ProductInCart[]>([]);
+  const [productsList, setProductsList] = useState<ProductInCart[]>([]);
   const [client, setClient] = useState({
     firstName: "",
     lastName: "",
@@ -220,11 +218,11 @@ const Pay = () => {
     DocumentData[]
   >([]);
 
-  const { cart, cartToClient, selectedCart } = useContext(CashContext);
-  const { formatCurrency } = useCurrencyFormat();
+  const { cartToClient, selectedCart } = useContext(CashContext);
   const invoiceRef = useRef<HTMLDivElement | null>(null);
   const { userData } = useContext(UserContext);
-  const { clients, registNewClient, findClient } = useContext(PayContext);
+  const { totalToPay, debtsInView, clients, registNewClient, findClient } =
+    useContext(PayContext);
   const { ordersInView, sendToTheKitchen } = useContext(KitchenContext);
 
   const getDate = () => {
@@ -253,7 +251,6 @@ const Pay = () => {
         ...client,
         [e.currentTarget.name]: e.target.value.replace(/[^\d]/g, ""),
       });
-      console.log(e.target.value.replace(/[^\d]/g, ""));
       findClient.get(e.target.value.replace(/[^\d]/g, ""));
     }
   };
@@ -287,34 +284,11 @@ const Pay = () => {
   };
 
   useEffect(() => {
-    let total = 0;
-    if (selectedCart === -1) {
-      cart.forEach((item) => {
-        total += item.product.price * item.quantity;
-      });
-      setTotalToPay(total);
-    } else {
-      cartToClient[selectedCart].products.forEach((item) => {
-        total += item.product.price * item.quantity;
-      });
-      if (ordersInView !== undefined) {
-        ordersInView.forEach((order) => {
-          order.products.forEach((item) => {
-            total += item.product.price * item.quantity;
-          });
-        });
-      }
-      setTotalToPay(total);
-    }
-  }, [selectedCart, cartToClient, cart, ordersInView]);
+    let invoiceList: ProductInCart[] = [];
+    const debtsList = debtsInView;
 
-  useEffect(() => {
-    if (selectedCart === -1) {
-      setCartInView(cart);
-    } else {
-      setCartInView(cartToClient[selectedCart].products);
-    }
-  }, [cart, selectedCart, cartToClient]);
+    setProductsList(invoiceList);
+  }, [debtsInView]);
 
   useEffect(() => {
     if (client.rut !== "") {
@@ -329,80 +303,70 @@ const Pay = () => {
     }
   }, [client.rut, clients]);
 
-  console.log(selectedClient);
-
   return (
     <>
       <LeftContent>
         <img src={Logo} alt="logo novaneta" />
         <h3>datos</h3>
-        <SearchClientsBox>
-          <InputsContainer>
-            <PatternFormat
-              format="##.###.###-#"
-              mask=""
-              placeholder={"00.000.000-0"}
-              valueIsNumericString={true}
-              allowLeadingZeros={false}
-              allowNegative={false}
-              allowEmptyFormatting={false}
-              allowDecimal={false}
-              customInput={InputBar}
-              name="rut"
-              value={client.rut}
-              onChange={changeEventHandle}
-            />
-            <NewClientButton
-              src={newClientIcon}
-              onClick={() => setNewClientMode(!newClientMode)}
-            />
-          </InputsContainer>
-          <ClientList>
-            {organizedClientList.map((item) => (
-              <>
-                <li onClick={() => selectClient(item)}>
-                  {/* <div>
+        {false ? (
+          <SearchClientsBox>
+            <InputsContainer>
+              <PatternFormat
+                format="##.###.###-#"
+                mask=""
+                placeholder={"00.000.000-0"}
+                valueIsNumericString={true}
+                allowLeadingZeros={false}
+                allowNegative={false}
+                allowEmptyFormatting={false}
+                allowDecimal={false}
+                customInput={InputBar}
+                name="rut"
+                value={client.rut}
+                onChange={changeEventHandle}
+              />
+              <NewClientButton
+                src={newClientIcon}
+                onClick={() => setNewClientMode(!newClientMode)}
+              />
+            </InputsContainer>
+            <ClientList>
+              {organizedClientList.map((item) => (
+                <>
+                  <li onClick={() => selectClient(item)}>
                     <PatternFormat
                       format="##.###.###-#"
                       mask=""
                       valueIsNumericString={true}
                       allowEmptyFormatting={false}
                       displayType="text"
-                      value={client.rut.replace(/[^\d]/g, "")}
-                    />
-                  </div> */}
-                  <PatternFormat
-                    format="##.###.###-#"
-                    mask=""
-                    valueIsNumericString={true}
-                    allowEmptyFormatting={false}
-                    displayType="text"
-                    renderText={(value) => (
-                      <>
-                        <span>
+                      renderText={(value) => (
+                        <>
+                          <span>
+                            {value.slice(
+                              0,
+                              formatStringByPattern("99.999.999-1", client.rut)
+                                .length
+                            )}
+                          </span>
                           {value.slice(
-                            0,
                             formatStringByPattern("99.999.999-1", client.rut)
-                              .length
+                              .length,
+                            value.length
                           )}
-                        </span>
-                        {value.slice(
-                          formatStringByPattern("99.999.999-1", client.rut)
-                            .length,
-                          value.length
-                        )}
-                      </>
-                    )}
-                    value={item.rut}
-                  />
-                </li>
-                <li onClick={() => selectClient(item)}>
-                  {item.firstName} {item.lastName}
-                </li>
-              </>
-            ))}
-          </ClientList>
-        </SearchClientsBox>
+                        </>
+                      )}
+                      value={item.rut}
+                    />
+                  </li>
+                  <li onClick={() => selectClient(item)}>
+                    {item.firstName} {item.lastName}
+                  </li>
+                </>
+              ))}
+            </ClientList>
+          </SearchClientsBox>
+        ) : null}
         {selectedClient ? (
           <>
             <h2>
@@ -414,9 +378,21 @@ const Pay = () => {
           </>
         ) : null}
         <h1>
-          Total a Pagar: <span>${formatCurrency("CLP", totalToPay)}</span>
+          Total a Pagar:{" "}
+          <span>
+            $
+            {
+              <NumericFormat
+                allowLeadingZeros
+                thousandSeparator="."
+                decimalSeparator=","
+                displayType="text"
+                value={totalToPay}
+              />
+            }
+          </span>
         </h1>
-        {selectedClient ? <h2>debito creadito efectivo</h2> : null}
+        {selectedClient ? <h2>debito credito efectivo</h2> : null}
         {selectedCart === -1 ? (
           <DisableButton>Enviar a Cocina</DisableButton>
         ) : (
@@ -456,21 +432,45 @@ const Pay = () => {
                       })
                     )
                   : null}
-                {cartInView.map((item) => {
+                {productsList.map((item) => {
                   return (
                     <Item key={item.product.id}>
                       x{item.quantity} {item.product.name}
-                      <ItemPrice>{item.product.price}</ItemPrice>
+                      <NumericFormat
+                        allowLeadingZeros
+                        thousandSeparator="."
+                        decimalSeparator=","
+                        displayType="text"
+                        value={item.product.price}
+                        renderText={(value) => <ItemPrice>{value}</ItemPrice>}
+                      />
+                      <NumericFormat
+                        allowLeadingZeros
+                        thousandSeparator="."
+                        decimalSeparator=","
+                        displayType="text"
+                        value={item.product.price * item.quantity}
+                        renderText={(value) => <ItemPrice>{value}</ItemPrice>}
+                      />
                     </Item>
                   );
                 })}
               </ItemsContainer>
               <hr />
               <TotalsContainer>
-                <InvoiceTotal>TOTAL: {totalToPay}</InvoiceTotal>
+                <NumericFormat
+                  allowLeadingZeros
+                  thousandSeparator="."
+                  decimalSeparator=","
+                  displayType="text"
+                  value={totalToPay}
+                  renderText={(value) => (
+                    <InvoiceTotal>TOTAL: ${value}</InvoiceTotal>
+                  )}
+                />
               </TotalsContainer>
             </Invoice>
-            {cartInView.length !== 0 ? (
+            {productsList.length !== 0 ? (
               <ReactToPrint
                 trigger={() => <PrintButton>IMPRIMIR</PrintButton>}
                 content={() => invoiceRef.current}
