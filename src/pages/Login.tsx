@@ -5,8 +5,9 @@ import {
   ChangeEvent,
   MouseEvent,
 } from "react";
+import { isMobile, isDesktop } from "react-device-detect";
 import { Link, redirect } from "react-router-dom";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 import User from "../interfaces/User";
 import useAuth from "../hooks/useAuth";
 import { UserContext } from "../context/UserContext";
@@ -136,6 +137,12 @@ const NewLeftContent = styled(LeftContent)`
 
 const NewRightContent = styled(RightContent)`
   background-color: #a45b17;
+  ${isMobile
+    ? css`
+        height: 100%;
+        width: 100%;
+      `
+    : null}
 `;
 
 const Login = ({ register }: { register?: boolean }) => {
@@ -179,9 +186,11 @@ const Login = ({ register }: { register?: boolean }) => {
   return (
     <>
       <Container className="mobile-change orientation center-content">
-        <NewLeftContent>
-          <ImgCool src="ottercash.png" />
-        </NewLeftContent>
+        {isDesktop ? (
+          <NewLeftContent>
+            <ImgCool src="ottercash.png" />
+          </NewLeftContent>
+        ) : null}
         <NewRightContent>
           <img src={LogoNovaneta} alt="logo novaneta" />
           <Form onSubmit={(e: FormEvent<HTMLFormElement>) => handleSubmit(e)}>

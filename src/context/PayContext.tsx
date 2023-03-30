@@ -1,6 +1,7 @@
 import {
   addDoc,
   collection,
+  doc,
   DocumentData,
   getDocs,
   limit,
@@ -8,6 +9,7 @@ import {
   orderBy,
   query,
   Timestamp,
+  updateDoc,
   where,
 } from "firebase/firestore";
 import {
@@ -18,6 +20,7 @@ import {
   useMemo,
   useEffect,
 } from "react";
+import { useNavigate } from "react-router-dom";
 import { db } from "../firebase/configuration";
 import CartToClient from "../interfaces/CartToClient";
 import Debt from "../interfaces/Debt";
@@ -32,6 +35,7 @@ interface Pay {
   debts: Debt[];
   debtsInView: Debt[];
   addDebt: (cart: CartToClient, order: Order) => void;
+  successfulPayment: (typePayment: string) => void;
   clients: DocumentData[];
   registNewClient: (client: {
     firstName: string;
@@ -51,6 +55,7 @@ export const PayContext = createContext<Pay>({
   debts: [],
   debtsInView: [],
   addDebt: (cart: CartToClient, order: Order) => {},
+  successfulPayment: (typePayment: string) => {},
   clients: [],
   registNewClient: (client: {
     firstName: string;
@@ -76,9 +81,11 @@ export const PayContextProvider = ({
   const { user } = useContext(UserContext);
   const { thisDevice } = useContext(DeviceContext);
   const { ordersInView } = useContext(KitchenContext);
-  const { cartId, cartToClient, selectedCart } = useContext(CashContext);
+  const { cartId, cartToClient, selectedCart, deleteCart } =
+    useContext(CashContext);
   const [totalToPay, setTotalToPay] = useState(0);
   const canceled = useRef(false);
+  const Navigate = useNavigate();
 
   const addDebt = (cart: CartToClient, order: Order) => {
     if (thisDevice) {
@@ -95,6 +102,22 @@ export const PayContextProvider = ({
         return doc.id;
       });
     }
+  };
+
+  const successfulPayment = (typePayment: string, deleteThisCart?: boolean) => {
+    debtsInView.forEach((debt) => {
+      debt.payType = typePayment;
+      debt.collectorId = thisDevice?.id;
+      debt.paidDate = Timestamp.now();
+      debt.status = "success";
+      updateDoc(doc(db, `Users/${user?.uid}/Payments/${debt.thisDocId}`), {
+        ...debt,
+      });
+      Navigate("cash/select");
+      if (deleteThisCart) {
+        setTimeout(() => deleteCart(debt.dbId), 3000);
+      }
+    });
   };
 
   const registNewClient = (client: {
@@ -148,8 +171,6 @@ export const PayContextProvider = ({
   useEffect(() => {
     setDebtsInView([...debts.filter((item) => item.dbId === cartId)]);
   }, [cartId, debts]);
-
-  console.log(debts, debtsInView);
 
   useEffect(() => {
     let total = 0;
@@ -223,6 +244,7 @@ export const PayContextProvider = ({
         debts,
         debtsInView,
         addDebt,
+        successfulPayment,
         clients,
         registNewClient,
         findClient,

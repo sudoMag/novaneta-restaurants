@@ -1,7 +1,8 @@
 import { useContext } from "react";
+import { BrowserView, isMobile } from "react-device-detect";
 import { NumericFormat } from "react-number-format";
 import { NavLink } from "react-router-dom";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 import { CashContext } from "../context/CashContext";
 import { PayContext } from "../context/PayContext";
 
@@ -14,10 +15,17 @@ const Container = styled.section`
   & h1 {
     margin: 10px;
     white-space: nowrap;
+    ${isMobile
+      ? css`
+          width: 100%;
+          text-align: center;
+        `
+      : null}
   }
 
   & span {
     font-size: 1.6em;
+    ${isMobile ? "font-size: 1.3em;" : null}
   }
 `;
 
@@ -62,8 +70,7 @@ const OthersContainer = styled.div`
 `;
 
 const PayBar = () => {
-  const {selectEventToggle } =
-    useContext(CashContext);
+  const { selectEventToggle } = useContext(CashContext);
   const { totalToPay } = useContext(PayContext);
 
   return (
@@ -78,7 +85,7 @@ const PayBar = () => {
         )}
       </OthersContainer>
       <h1>
-        Total a Pagar:{" "}
+        <BrowserView>Total a Pagar: </BrowserView>
         <span>
           ${" "}
           <NumericFormat

@@ -1,5 +1,5 @@
 import { useCallback, useContext, useEffect, useState } from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 import CartsBar from "../../components/CartsBar";
 import CashBox from "../../components/CashBox";
 import PayBar from "../../components/PayBar";
@@ -12,12 +12,42 @@ import DesktopIcon from "../../icons/pcicon.svg";
 import MobileIcon from "../../icons/mobileicon.svg";
 import Opacity from "../../components/animations/Opacity";
 import { useNavigate } from "react-router-dom";
+import { BrowserView, isMobile } from "react-device-detect";
 
 const HeadBarLeft = styled.div`
   width: 100%;
   & #logo {
     margin: 10px 20px;
   }
+`;
+
+const MobileLeftLayoutMode = css`
+  width: 100%;
+  height: 100%;
+`;
+
+const CustomLeftLayout = styled(LeftContent)`
+  ${isMobile ? MobileLeftLayoutMode : null}
+`;
+
+const MobileRightLayoutMode = css`
+  width: 100%;
+  height: 10%;
+  background-color: #80808021;
+  border-radius: 15px;
+`;
+
+const showMenuInMobile = css`
+  height: 80%;
+
+  & h3 {
+    margin: 10px;
+  }
+`;
+
+const CustomRightLayout = styled(RightContent)<{ showMenu: boolean }>`
+  ${isMobile ? MobileRightLayoutMode : null}
+  ${({ showMenu }) => (isMobile && showMenu ? showMenuInMobile : null)}
 `;
 
 const HeadBarRight = styled.div`
@@ -62,6 +92,7 @@ const ProfilePicture = styled.img`
 const Cash = () => {
   const { userData } = useContext(UserContext);
   const { thisDevice } = useContext(DeviceContext);
+  const [showMenu, setShowMenu] = useState(false);
   const [picture, setPicture] = useState("");
   const navigate = useNavigate();
 
@@ -85,30 +116,39 @@ const Cash = () => {
 
   return (
     <>
-      <LeftContent>
+      <CustomLeftLayout>
         <HeadBarLeft>
           <img id="logo" src={Logo} alt="logo novaneta" />
         </HeadBarLeft>
         <CartsBar />
         <CashBox />
         <PayBar />
-      </LeftContent>
-      <RightContent>
-        <HeadBarRight>
-          <ProfileCard onClick={() => navigate("/profiles")}>
-            {thisDevice?.deviceType === "desktop" ? (
-              <img src={DesktopIcon} alt="device" />
-            ) : (
-              <img src={MobileIcon} alt="device" />
-            )}
-            {thisDevice?.name}
-          </ProfileCard>
-          <h3>{userData?.name}</h3>
-          <ProfilePicture src={picture} />
-        </HeadBarRight>
-        <h3>Productos</h3>
-        <ProductsSelectionBox />
-      </RightContent>
+      </CustomLeftLayout>
+      <CustomRightLayout showMenu={showMenu}>
+        <BrowserView>
+          <HeadBarRight>
+            <ProfileCard onClick={() => navigate("/profiles")}>
+              {thisDevice?.deviceType === "desktop" ? (
+                <img src={DesktopIcon} alt="device" />
+              ) : (
+                <img src={MobileIcon} alt="device" />
+              )}
+              {thisDevice?.name}
+            </ProfileCard>
+            <h3>{userData?.name}</h3>
+            <ProfilePicture src={picture} />
+          </HeadBarRight>
+          <h3>Productos</h3>
+        </BrowserView>
+        {isMobile ? (
+          <>
+            <h3 onClick={() => setShowMenu(!showMenu)}>Productos</h3>
+            {showMenu ? <ProductsSelectionBox /> : null}
+          </>
+        ) : (
+          <ProductsSelectionBox />
+        )}
+      </CustomRightLayout>
     </>
   );
 };

@@ -11,6 +11,7 @@ import { KitchenContext } from "../context/KitchenContext";
 import OrderCard from "./OrderCard";
 import { PayContext } from "../context/PayContext";
 import { NumericFormat } from "react-number-format";
+import { BrowserView } from "react-device-detect";
 
 const Container = styled.section`
   display: flex;
@@ -149,9 +150,9 @@ const CashBox = () => {
     <Container ref={(el) => (ScrollRef.current = el)}>
       {CartInView.length === 0 &&
       ordersInView?.length === 0 &&
-      debtsInView.length === 0
-        ? <img src="/enpty cart.png" alt=""/>
-        : null}
+      debtsInView.length === 0 ? (
+        <img src="/enpty cart.png" alt="" />
+      ) : null}
       {ordersInView !== undefined
         ? ordersInView.map((order, index) => (
             <OrderCard
@@ -187,7 +188,7 @@ const CashBox = () => {
               </NameAndPrice>
               <TotalAndButtons>
                 <TotalPrice>
-                  Total: ${" "}
+                  <BrowserView>Total: $ </BrowserView>
                   <NumericFormat
                     allowLeadingZeros
                     thousandSeparator="."

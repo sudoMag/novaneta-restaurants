@@ -5,6 +5,8 @@ export default interface Debt extends CartToClient {
   thisDocId: string;
   casherId: string;
   date: Timestamp;
+  paidDate?: Timestamp;
+  collectorId?: string;
   status: string;
   payType: string;
   clientId?: string;

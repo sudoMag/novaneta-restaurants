@@ -6,6 +6,10 @@ import {
   Unsubscribe,
   updateDoc,
   doc,
+  query,
+  limit,
+  startAfter,
+  orderBy,
 } from "firebase/firestore";
 import { db, storage } from "../firebase/configuration";
 import Product from "../interfaces/Product";
@@ -32,6 +36,7 @@ interface IContext {
     cancel: () => void;
   };
   onChangeProducts: () => Unsubscribe;
+  bringMoreProducts: () => void;
   addProduct: (product: Product) => void;
   updateProduct: (product: Product) => void;
   upLoadProductImg: (e: ChangeEvent<HTMLInputElement>) => void;
@@ -47,6 +52,7 @@ export const Context = createContext<IContext>({
   },
   ProductsInfo: { get: async () => {}, cancel: () => {} },
   onChangeProducts: () => () => {},
+  bringMoreProducts: () => {},
   addProduct: (product: Product) => {},
   updateProduct: (product: Product) => {},
   upLoadProductImg: (e: ChangeEvent<HTMLInputElement>) => {},
@@ -60,6 +66,7 @@ export const ProductsContext = ({
   children: JSX.Element | JSX.Element[];
 }) => {
   const [Products, setProducts] = useState<Product[]>([]);
+  const [lastProduct, setLastProduct] = useState<Product | null>(null);
   const cancelled = useRef(false);
   const { user } = useContext(UserContext);
   const [productImg, setProductImg] = useState<{
@@ -93,15 +100,29 @@ export const ProductsContext = ({
   );
 
   const onChangeProducts = useCallback(() => {
-    const unsubscribe = onSnapshot(
+    const q = query(
       collection(db, `Users/${user?.uid}/Products`),
+      orderBy("name", "asc"),
+      limit(20)
+    );
+
+    const unsubscribe = onSnapshot(
+      q,
       (docs) => {
         let data: Product[] = [];
         docs.forEach((product) => {
           const { name, description, price, img_url } = product.data();
-          data.push({ id: product.id, name, description, price, img_url });
+          data.push({
+            id: product.id,
+            name,
+            description,
+            price,
+            img_url: img_url ? img_url : "",
+          });
         });
+        console.log(data, data[data.length - 1]);
         setProducts(data);
+        setLastProduct(data[data.length - 1]);
       },
       (error) => {
         console.error(error);
@@ -109,6 +130,41 @@ export const ProductsContext = ({
     );
     return () => unsubscribe;
   }, [user?.uid]);
+
+  const bringMoreProducts = () => {
+    const q = query(
+      collection(db, `Users/${user?.uid}/Products`),
+      orderBy("name", "asc"),
+      startAfter(lastProduct?.name),
+      limit(20)
+    );
+
+    getDocs(q)
+      .then((docs) => {
+        let data: Product[] = [];
+        docs.forEach((product) => {
+          const { name, description, price, img_url } = product.data();
+          data.push({
+            id: product.id,
+            name,
+            description,
+            price,
+            img_url: img_url ? img_url : "",
+          });
+        });
+        console.log(lastProduct, data);
+        if (data.length !== 0) {
+          console.log(data);
+          setProducts([...Products, ...data]);
+        } else {
+          setProducts([...Products]);
+        }
+        setLastProduct(data[data.length - 1]);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  };
 
   const addProduct = (product: Product) => {
     if (user) {
@@ -118,7 +174,9 @@ export const ProductsContext = ({
 
   const updateProduct = (product: Product) => {
     if (user) {
-      updateDoc(doc(db, `Users/${user?.uid}/Products/${product.id}`), { ...product });
+      updateDoc(doc(db, `Users/${user?.uid}/Products/${product.id}`), {
+        ...product,
+      });
     }
   };
 
@@ -126,10 +184,7 @@ export const ProductsContext = ({
     const img: FileList | null = e.currentTarget.files;
 
     if (img !== null) {
-      const storageRef = ref(
-        storage,
-        `images/productImges/${img[0].name}`
-      );
+      const storageRef = ref(storage, `images/productImges/${img[0].name}`);
 
       const uploadTask = uploadBytesResumable(storageRef, img[0]);
 
@@ -178,6 +233,7 @@ export const ProductsContext = ({
         productImg,
         ProductsInfo,
         onChangeProducts,
+        bringMoreProducts,
         addProduct,
         updateProduct,
         upLoadProductImg,

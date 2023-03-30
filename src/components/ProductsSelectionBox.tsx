@@ -2,21 +2,29 @@ import { useContext, useEffect } from "react";
 import styled from "styled-components";
 import { CashContext } from "../context/CashContext";
 import { Context } from "../context/ProductContext";
-import useCurrencyFormat from "../hooks/useCurrencyFormat";
 import Opacity from "./animations/Opacity";
 import pizaSpinner from "../icons/pizzalight.svg";
 import SpinnerRotation from "./animations/SpinnerRotation";
+import InfiniteScroll from "react-infinite-scroll-component";
+import { NumericFormat } from "react-number-format";
 
 const Container = styled.section`
   display: flex;
-  flex-wrap: wrap;
-  overflow-y: auto;
-  padding: 5px;
+  flex-direction: row;
+  overflow-y: scroll;
   justify-content: center;
   height: 100%;
 
   &::-webkit-scrollbar {
     display: none;
+  }
+
+  & .infinite-scroll-component {
+    display: flex;
+    flex-wrap: wrap;
+    padding: 5px;
+    justify-content: center;
+    height: 100%;
   }
 `;
 
@@ -59,15 +67,15 @@ const ImgContainer = styled.div<{ imgUrl: string | undefined }>`
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
-  ${({ imgUrl }) => (imgUrl ? `background-image: url(${imgUrl});` : null)}
+  ${({ imgUrl }) =>
+    imgUrl && imgUrl !== "" ? `background-image: url(${imgUrl});` : null}
 `;
 
 const PricePill = styled.div`
   padding: 0.2em 0.5em;
   border-radius: 10px;
-  backdrop-filter: blur(10px);
-  border: solid 1px gray;
-  background-color: #2727286b;
+  background: var(--gradient-1);
+  border: solid 2px gray;
   text-align: end;
   margin-top: -1.9em;
 `;
@@ -76,10 +84,16 @@ const Spiner = styled.img`
   animation: ${SpinnerRotation} 1s linear infinite;
 `;
 
+const LoaderContainer = styled.div`
+  width: 100%;
+  padding: 10px 0;
+  display: flex;
+  justify-content: center;
+`;
+
 const ProductsSelectionBox = () => {
-  const { Products, onChangeProducts } = useContext(Context);
+  const { Products, onChangeProducts, bringMoreProducts } = useContext(Context);
   const { addToCart } = useContext(CashContext);
-  const { formatCurrency } = useCurrencyFormat();
 
   useEffect(() => {
     const unSubscribe = onChangeProducts();
@@ -87,24 +101,45 @@ const ProductsSelectionBox = () => {
   }, [onChangeProducts]);
 
   return (
-    <Container>
-      {Products.length !== 0 ? (
-        Products.map((product, index) => {
-          return (
-            <ProductCard
-              key={product.id}
-              number={index}
-              onClick={() => addToCart(product)}
-            >
-              <ImgContainer imgUrl={product.img_url} />
-              <PricePill>$ {formatCurrency("CLP", product.price)}</PricePill>
-              <h4>{product.name}</h4>
-            </ProductCard>
-          );
-        })
-      ) : (
-        <Spiner src={pizaSpinner} />
-      )}
+    <Container id="infinite-scroll">
+      <InfiniteScroll
+        dataLength={Products.length}
+        next={bringMoreProducts}
+        hasMore
+        loader={
+          <LoaderContainer>
+            <Spiner src={pizaSpinner} />
+          </LoaderContainer>
+        }
+        scrollableTarget="infinite-scroll"
+      >
+        {Products.length !== 0 ? (
+          Products.map((product, index) => {
+            return (
+              <ProductCard
+                key={product.id}
+                number={index}
+                onClick={() => addToCart(product)}
+              >
+                <ImgContainer imgUrl={product.img_url} />
+                <NumericFormat
+                    allowLeadingZeros
+                    thousandSeparator="."
+                    decimalSeparator=","
+                    displayType="text"
+                    value={product.price}
+                    renderText={(value) => (
+                      <PricePill>${value}</PricePill>
+                    )}
+                  />
+                <h4>{product.name}</h4>
+              </ProductCard>
+            );
+          })
+        ) : (
+          <Spiner src={pizaSpinner} />
+        )}
+      </InfiniteScroll>
     </Container>
   );
 };

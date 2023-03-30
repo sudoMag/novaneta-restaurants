@@ -1,5 +1,5 @@
 import { ChangeEvent, useContext, useEffect, useRef, useState } from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 import { LeftContent, RightContent } from "../../components/SplittedPanel";
 import { CashContext } from "../../context/CashContext";
 import Logo from "../../icons/logowhite.svg";
@@ -109,6 +109,38 @@ const SendToKitchenButton = styled.div`
   margin: 10px;
 `;
 
+const PayButton = styled.div`
+  padding: 10px;
+  border-radius: 10px;
+  background: var(--gradient-1);
+  color: #1d1e20;
+  font-weight: bold;
+  cursor: pointer;
+  margin: 10px;
+`;
+
+const TypeActive = css`
+  background-color: var(--bg-main-color);
+  color: #1d1e20;
+`;
+
+const PayType = styled.div<{ active: boolean }>`
+  padding: 10px;
+  border-radius: 10px;
+  background-color: var(--bg-color);
+  color: var(--bg-main-color);
+  font-weight: bold;
+  cursor: pointer;
+  margin: 10px;
+  ${({ active }) => (active ? TypeActive : null)}
+`;
+
+const PayTypeContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
 const DisableButton = styled.div`
   padding: 10px;
   background-color: #414141;
@@ -214,6 +246,7 @@ const Pay = () => {
   });
   const [selectedClient, setSelectedClient] = useState<DocumentData>();
   const [newClientMode, setNewClientMode] = useState(false);
+  const [payType, setPayType] = useState("cash");
   const [organizedClientList, setOrganizedClientList] = useState<
     DocumentData[]
   >([]);
@@ -221,8 +254,14 @@ const Pay = () => {
   const { cartToClient, selectedCart } = useContext(CashContext);
   const invoiceRef = useRef<HTMLDivElement | null>(null);
   const { userData } = useContext(UserContext);
-  const { totalToPay, debtsInView, clients, registNewClient, findClient } =
-    useContext(PayContext);
+  const {
+    totalToPay,
+    debtsInView,
+    successfulPayment,
+    clients,
+    registNewClient,
+    findClient,
+  } = useContext(PayContext);
   const { ordersInView, sendToTheKitchen } = useContext(KitchenContext);
 
   const getDate = () => {
@@ -285,8 +324,23 @@ const Pay = () => {
 
   useEffect(() => {
     let invoiceList: ProductInCart[] = [];
-    const debtsList = debtsInView;
+    /* const debtsList = debtsInView; */
+    /* debtsList.forEach((debt) => {
+      debt.products.forEach((product) => {
+        const productInList = invoiceList.findIndex(
+          (item) => item.product.id === product.product.id
+        );
+        const notInList = productInList === -1;
 
+        if (notInList) {
+          invoiceList.push(product);
+        } else {
+          invoiceList[productInList].quantity += product.quantity;
+        }
+      });
+    }); */
+
+    debtsInView.forEach(() => {});
     setProductsList(invoiceList);
   }, [debtsInView]);
 
@@ -393,7 +447,8 @@ const Pay = () => {
           </span>
         </h1>
         {selectedClient ? <h2>debito credito efectivo</h2> : null}
-        {selectedCart === -1 ? (
+        {selectedCart === -1 ||
+        cartToClient[selectedCart].products.length === 0 ? (
           <DisableButton>Enviar a Cocina</DisableButton>
         ) : (
           <SendToKitchenButton
@@ -401,6 +456,35 @@ const Pay = () => {
           >
             Enviar a cocina
           </SendToKitchenButton>
+        )}
+        {debtsInView.length === 0 ? (
+          <DisableButton>Pagar</DisableButton>
+        ) : (
+          <>
+            <PayTypeContainer>
+              <PayType
+                active={payType === "cash" ? true : false}
+                onClick={() => setPayType("cash")}
+              >
+                Efectivo
+              </PayType>
+              <PayType
+                active={payType === "debt" ? true : false}
+                onClick={() => setPayType("debt")}
+              >
+                Debito
+              </PayType>
+              <PayType
+                active={payType === "credit" ? true : false}
+                onClick={() => setPayType("credit")}
+              >
+                Credito
+              </PayType>
+            </PayTypeContainer>
+            <PayButton onClick={() => successfulPayment(payType)}>
+              Pagar
+            </PayButton>
+          </>
         )}
       </LeftContent>
       <RightContent>

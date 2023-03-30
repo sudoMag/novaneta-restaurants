@@ -10,6 +10,9 @@ import {
 import { Context } from "../context/ProductContext";
 import SelectButton from "./PlanSelectButton";
 import Product from "../interfaces/Product";
+import InfiniteScroll from "react-infinite-scroll-component";
+import pizaSpinner from "../icons/pizzalight.svg";
+import SpinnerRotation from "./animations/SpinnerRotation";
 
 const Container = styled.section`
   margin: 10px;
@@ -17,7 +20,7 @@ const Container = styled.section`
   padding: 10px 20px;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
   justify-items: start;
   background-color: #7a7a7a38;
   border-radius: 20px;
@@ -107,6 +110,19 @@ const ScrollFrame = styled.div`
     display: none;
   }
 
+  & .infinite-scroll-component {
+    display: flex;
+    flex-wrap: wrap;
+    padding: 5px;
+    justify-content: center;
+    height: 100%;
+    overflow: unset;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
   & h3 {
     font-size: 1.1em;
     margin: 0 0 5px;
@@ -117,14 +133,42 @@ export const PlanDescription = styled.article`
   overflow: hidden;
 `;
 
+const Spiner = styled.img`
+  animation: ${SpinnerRotation} 1s linear infinite;
+`;
+
+const LoaderContainer = styled.div`
+  width: 100%;
+  padding: 10px 0;
+  display: flex;
+  justify-content: center;
+`;
+
+const ImgContainer = styled.div<{ imgUrl: string | undefined }>`
+  width: 45px;
+  height: 25px;
+  border-radius: 5px;
+  background: rgb(124, 68, 15);
+  background: linear-gradient(
+    191deg,
+    var(--bg-main-color) -40%,
+    rgba(29, 30, 32, 1) 100%
+  );
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  ${({ imgUrl }) =>
+    imgUrl && imgUrl !== "" ? `background-image: url(${imgUrl});` : null}
+`;
+
 export const PlansInfo = ({
   editProduct,
 }: {
   editProduct: (product: Product) => void;
 }) => {
-  const { Products, onChangeProducts } = useContext(Context);
+  const { Products, onChangeProducts, bringMoreProducts } = useContext(Context);
   const [layoutMap, setLayoutMap] = useState<number[]>([
-    50, 200, 200, 200, 200,
+    50, 200, 200, 200, 200, 100,
   ]);
   const [initialAxis, setInitialAxis] = useState<{
     axis: number;
@@ -166,62 +210,77 @@ export const PlansInfo = ({
   }, [onChangeProducts]);
 
   return (
-    <ScrollFrame>
+    <ScrollFrame id="infinite-scroll">
       <Container className="mobile-change center-items">
-        <ColumsHeadTitleContainer
-          className="noselect"
-          gridColumnsLayout={makeLayoutString(layoutMap)}
-          onMouseMove={seeMouseAxis}
-          onMouseLeave={() => setInitialAxis({ axis: 0, index: undefined })}
-          onMouseUp={() => setInitialAxis({ axis: 0, index: undefined })}
+        <InfiniteScroll
+          dataLength={Products.length}
+          next={bringMoreProducts}
+          hasMore
+          loader={
+            <LoaderContainer>
+              <Spiner src={pizaSpinner} />
+            </LoaderContainer>
+          }
+          scrollableTarget="infinite-scroll"
         >
-          <ColumnHeader>Nro</ColumnHeader>
-          <ColumnHeader onMouseDown={(e) => writeInitialAxis(e, 1)}>
-            ID
-          </ColumnHeader>
-          <ColumnHeader onMouseDown={(e) => writeInitialAxis(e, 2)}>
-            Nombre
-          </ColumnHeader>
-          <ColumnHeader onMouseDown={(e) => writeInitialAxis(e, 3)}>
-            Precio de venta
-          </ColumnHeader>
-          <ColumnHeader onMouseDown={(e) => writeInitialAxis(e, 4)}>
-            Descripción
-          </ColumnHeader>
-        </ColumsHeadTitleContainer>
-        {Products.length !== 0 ? (
-          Products.map((Product, index) => {
-            return (
-              <PlanCard
-                className={Product.name === "Enterprise" ? "premium-plan" : ""}
-                key={index}
-                gridColumnsLayout={makeLayoutString(layoutMap)}
-                onClick={() => editProduct(Product)}
-              >
-                <div>{index + 1}</div>
-                <div>{Product.id}</div>
-                <PlanTitle>{Product.name}</PlanTitle>
-                <PlanProduct>$ {Product.price}</PlanProduct>
-                <PlanDescription>{Product.description}</PlanDescription>
+          <ColumsHeadTitleContainer
+            className="noselect"
+            gridColumnsLayout={makeLayoutString(layoutMap)}
+            onMouseMove={seeMouseAxis}
+            onMouseLeave={() => setInitialAxis({ axis: 0, index: undefined })}
+            onMouseUp={() => setInitialAxis({ axis: 0, index: undefined })}
+          >
+            <ColumnHeader>Nro</ColumnHeader>
+            <ColumnHeader onMouseDown={(e) => writeInitialAxis(e, 1)}>
+              ID
+            </ColumnHeader>
+            <ColumnHeader onMouseDown={(e) => writeInitialAxis(e, 2)}>
+              Nombre
+            </ColumnHeader>
+            <ColumnHeader onMouseDown={(e) => writeInitialAxis(e, 3)}>
+              Precio de venta
+            </ColumnHeader>
+            <ColumnHeader onMouseDown={(e) => writeInitialAxis(e, 4)}>
+              Descripción
+            </ColumnHeader>
+            <ColumnHeader onMouseDown={(e) => writeInitialAxis(e, 5)}>
+              Imagen
+            </ColumnHeader>
+          </ColumsHeadTitleContainer>
+          {Products.length !== 0 ? (
+            Products.map((Product, index) => {
+              return (
+                <PlanCard
+                  key={index}
+                  gridColumnsLayout={makeLayoutString(layoutMap)}
+                  onClick={() => editProduct(Product)}
+                >
+                  <div>{index + 1}</div>
+                  <div>{Product.id}</div>
+                  <PlanTitle>{Product.name}</PlanTitle>
+                  <PlanProduct>$ {Product.price}</PlanProduct>
+                  <PlanDescription>{Product.description}</PlanDescription>
+                  <ImgContainer imgUrl={Product.img_url} />
+                </PlanCard>
+              );
+            })
+          ) : (
+            <>
+              <PlanCard gridColumnsLayout={makeLayoutString(layoutMap)}>
+                <TemplateH2 />
+                {TemplateTextArea(2)}
               </PlanCard>
-            );
-          })
-        ) : (
-          <>
-            <PlanCard gridColumnsLayout={makeLayoutString(layoutMap)}>
-              <TemplateH2 />
-              {TemplateTextArea(2)}
-            </PlanCard>
-            <PlanCard gridColumnsLayout={makeLayoutString(layoutMap)}>
-              <TemplateH2 />
-              {TemplateTextArea(2)}
-            </PlanCard>
-            <PlanCard gridColumnsLayout={makeLayoutString(layoutMap)}>
-              <TemplateH2 />
-              {TemplateTextArea(2)}
-            </PlanCard>
-          </>
-        )}
+              <PlanCard gridColumnsLayout={makeLayoutString(layoutMap)}>
+                <TemplateH2 />
+                {TemplateTextArea(2)}
+              </PlanCard>
+              <PlanCard gridColumnsLayout={makeLayoutString(layoutMap)}>
+                <TemplateH2 />
+                {TemplateTextArea(2)}
+              </PlanCard>
+            </>
+          )}
+        </InfiniteScroll>
       </Container>
     </ScrollFrame>
   );
