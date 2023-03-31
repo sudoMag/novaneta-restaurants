@@ -1,4 +1,4 @@
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 import { TemplateH2, TemplateTextArea } from "./skeleton/LoadingTextData";
 import {
   MouseEvent,
@@ -13,6 +13,7 @@ import Product from "../interfaces/Product";
 import InfiniteScroll from "react-infinite-scroll-component";
 import pizaSpinner from "../icons/pizzalight.svg";
 import SpinnerRotation from "./animations/SpinnerRotation";
+import { isBrowser, isMobile } from "react-device-detect";
 
 const Container = styled.section`
   margin: 10px;
@@ -22,8 +23,13 @@ const Container = styled.section`
   flex-direction: column;
   align-items: center;
   justify-items: start;
-  background-color: #7a7a7a38;
+  ${isBrowser ? "background-color: #7a7a7a38;" : null}
   border-radius: 20px;
+  ${isMobile
+    ? css`
+        align-items: flex-start;
+      `
+    : null}
 `;
 
 export const PlanCard = styled.div<{ gridColumnsLayout: string }>`
@@ -80,15 +86,20 @@ const ColumsHeadTitleContainer = styled.header<{ gridColumnsLayout: string }>`
   grid-template-columns: ${({ gridColumnsLayout }) => gridColumnsLayout};
   margin: 5px 0;
   justify-items: start;
-  backdrop-filter: blur(10px);
   height: 100%;
   margin: 0;
   padding: 5px 5px;
   position: sticky;
-  background-color: #7a7a7a38;
+  ${isBrowser
+    ? css`
+        background-color: #7a7a7a38;
+        backdrop-filter: blur(10px);
+      `
+    : null}
   top: 10px;
   border-radius: 10px;
   width: 99%;
+  ${isMobile ? "justify-items: stretch;" : null}
 `;
 
 const ColumnHeader = styled.div`
@@ -211,7 +222,31 @@ export const PlansInfo = ({
 
   return (
     <ScrollFrame id="infinite-scroll">
-      <Container className="mobile-change center-items">
+      <Container>
+        <ColumsHeadTitleContainer
+          className="noselect"
+          gridColumnsLayout={makeLayoutString(layoutMap)}
+          onMouseMove={seeMouseAxis}
+          onMouseLeave={() => setInitialAxis({ axis: 0, index: undefined })}
+          onMouseUp={() => setInitialAxis({ axis: 0, index: undefined })}
+        >
+          <ColumnHeader>Nro</ColumnHeader>
+          <ColumnHeader onMouseDown={(e) => writeInitialAxis(e, 1)}>
+            ID
+          </ColumnHeader>
+          <ColumnHeader onMouseDown={(e) => writeInitialAxis(e, 2)}>
+            Nombre
+          </ColumnHeader>
+          <ColumnHeader onMouseDown={(e) => writeInitialAxis(e, 3)}>
+            Precio de venta
+          </ColumnHeader>
+          <ColumnHeader onMouseDown={(e) => writeInitialAxis(e, 4)}>
+            Descripción
+          </ColumnHeader>
+          <ColumnHeader onMouseDown={(e) => writeInitialAxis(e, 5)}>
+            Imagen
+          </ColumnHeader>
+        </ColumsHeadTitleContainer>
         <InfiniteScroll
           dataLength={Products.length}
           next={bringMoreProducts}
@@ -223,30 +258,6 @@ export const PlansInfo = ({
           }
           scrollableTarget="infinite-scroll"
         >
-          <ColumsHeadTitleContainer
-            className="noselect"
-            gridColumnsLayout={makeLayoutString(layoutMap)}
-            onMouseMove={seeMouseAxis}
-            onMouseLeave={() => setInitialAxis({ axis: 0, index: undefined })}
-            onMouseUp={() => setInitialAxis({ axis: 0, index: undefined })}
-          >
-            <ColumnHeader>Nro</ColumnHeader>
-            <ColumnHeader onMouseDown={(e) => writeInitialAxis(e, 1)}>
-              ID
-            </ColumnHeader>
-            <ColumnHeader onMouseDown={(e) => writeInitialAxis(e, 2)}>
-              Nombre
-            </ColumnHeader>
-            <ColumnHeader onMouseDown={(e) => writeInitialAxis(e, 3)}>
-              Precio de venta
-            </ColumnHeader>
-            <ColumnHeader onMouseDown={(e) => writeInitialAxis(e, 4)}>
-              Descripción
-            </ColumnHeader>
-            <ColumnHeader onMouseDown={(e) => writeInitialAxis(e, 5)}>
-              Imagen
-            </ColumnHeader>
-          </ColumsHeadTitleContainer>
           {Products.length !== 0 ? (
             Products.map((Product, index) => {
               return (
