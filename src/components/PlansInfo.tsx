@@ -11,8 +11,6 @@ import { Context } from "../context/ProductContext";
 import SelectButton from "./PlanSelectButton";
 import Product from "../interfaces/Product";
 import InfiniteScroll from "react-infinite-scroll-component";
-import pizaSpinner from "../icons/pizzalight.svg";
-import SpinnerRotation from "./animations/SpinnerRotation";
 import { isBrowser, isMobile } from "react-device-detect";
 
 const Container = styled.section`
@@ -144,10 +142,6 @@ export const PlanDescription = styled.article`
   overflow: hidden;
 `;
 
-const Spiner = styled.img`
-  animation: ${SpinnerRotation} 1s linear infinite;
-`;
-
 const LoaderContainer = styled.div`
   width: 100%;
   padding: 10px 0;
@@ -252,9 +246,7 @@ export const PlansInfo = ({
           next={bringMoreProducts}
           hasMore
           loader={
-            <LoaderContainer>
-              <Spiner src={pizaSpinner} />
-            </LoaderContainer>
+            <LoaderContainer />
           }
           scrollableTarget="infinite-scroll"
         >

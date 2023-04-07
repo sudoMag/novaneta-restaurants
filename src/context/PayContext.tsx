@@ -75,6 +75,7 @@ export const PayContextProvider = ({
 }: {
   children: JSX.Element | JSX.Element[];
 }) => {
+  const [balanceAmount, setBalanceAmount] = useState(0);
   const [debts, setDebts] = useState<Debt[]>([]);
   const [debtsInView, setDebtsInView] = useState<Debt[]>([]);
   const [clients, setClients] = useState<DocumentData[]>([]);
@@ -105,6 +106,7 @@ export const PayContextProvider = ({
   };
 
   const successfulPayment = (typePayment: string, deleteThisCart?: boolean) => {
+    let totalAmount = 0;
     debtsInView.forEach((debt) => {
       debt.payType = typePayment;
       debt.collectorId = thisDevice?.id;
@@ -113,11 +115,16 @@ export const PayContextProvider = ({
       updateDoc(doc(db, `Users/${user?.uid}/Payments/${debt.thisDocId}`), {
         ...debt,
       });
-      Navigate("cash/select");
-      if (deleteThisCart) {
-        setTimeout(() => deleteCart(debt.dbId), 3000);
-      }
+      totalAmount += debt.amount;
     });
+    addDoc(collection(db, `Users/${user?.uid}/Balcance`), {
+      date: Timestamp.now(),
+      amount: balanceAmount + totalAmount,
+    });
+    if (deleteThisCart) {
+      setTimeout(() => deleteCart(debtsInView[0].dbId), 3000);
+    }
+    Navigate("cash/select");
   };
 
   const registNewClient = (client: {
@@ -185,6 +192,27 @@ export const PayContextProvider = ({
       setTotalToPay(total);
     }
   }, [cartToClient, debtsInView, ordersInView, selectedCart]);
+
+  useEffect(() => {
+    const q = query(
+      collection(db, `Users/${user?.uid}/Balance`),
+      orderBy("date", "asc"),
+      limit(1)
+    );
+    const unsubscribe = onSnapshot(
+      q,
+      (docs) => {
+        docs.forEach((item) => {
+          const { amount } = item.data();
+          setBalanceAmount(amount);
+        })
+      },
+      (error) => {
+        console.error(error);
+      }
+    );
+    return unsubscribe;
+  }, [user?.uid]);
 
   useEffect(() => {
     const q = query(

@@ -11,12 +11,12 @@ interface IProps {
 }
 
 const NovanetaTheme = css`
-  --bg-main-color: #a45b17;
-  --bg-gradient-color: #0e362c;
+  --bg-main-color: #d66903;
+  --bg-gradient-color: #013932;
   --gradient-1: linear-gradient(
     90deg,
     rgba(164, 68, 23, 1) 0%,
-    rgba(164, 91, 23, 1) 100%
+    #d66903 100%
   );
 `;
 

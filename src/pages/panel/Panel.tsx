@@ -16,6 +16,7 @@ import StatisticsIcon from "../../icons/statistics.svg";
 import { KitchenContextProvider } from "../../context/KitchenContext";
 import { PayContextProvider } from "../../context/PayContext";
 import { BrowserView, isMobile, MobileView } from "react-device-detect";
+import StatisticsPage from "./StatisticsPage";
 
 const Container = styled.section`
   display: flex;
@@ -179,7 +180,7 @@ const Panel = () => {
                   <Route path="/cash/*" element={<Resume />} />
                   <Route path="kitchen" element={<Kitchen />} />
                   <Route path="new" element={<NewProduct />} />
-                  <Route path="statistics" element={<h1>Estadisticas</h1>} />
+                  <Route path="statistics" element={<StatisticsPage />} />
                   <Route path="config/*" element={<Config />} />
                 </Routes>
               </PayContextProvider>

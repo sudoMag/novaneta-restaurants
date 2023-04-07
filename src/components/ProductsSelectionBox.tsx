@@ -107,9 +107,7 @@ const ProductsSelectionBox = () => {
         next={bringMoreProducts}
         hasMore
         loader={
-          <LoaderContainer>
-            <Spiner src={pizaSpinner} />
-          </LoaderContainer>
+          <LoaderContainer />
         }
         scrollableTarget="infinite-scroll"
       >
