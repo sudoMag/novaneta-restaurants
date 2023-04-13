@@ -22,55 +22,38 @@ const useStatistics = () => {
   const [lastDocInList, setLastDocInList] = useState<Debt>();
 
   const bringMoreSales = () => {
+    const paidDate = new Date();
+
+    const yearOfDate = paidDate.getFullYear();
+    const monthOfDate = paidDate.getMonth() + 1;
+
     const q = query(
-      collection(db, `Users/${user?.uid}/Payments`),
-      where("status", "==", "success"),
-      orderBy("thisDocId", "asc"),
-      orderBy("paidDate", "desc"),
-      startAfter(lastDocInList?.thisDocId),
+      collection(
+        db,
+        `Users/${user?.uid}/Balcance/
+        ${yearOfDate}/${monthOfDate}/`
+      ),
+      orderBy("date", "desc"),
+      startAfter(lastDocInList?.date),
       limit(8)
     );
 
     getDocs(q)
       .then((docs) => {
-        let data: Debt[] = [];
-        docs.forEach((item) => {
-          const {
-            dbId,
-            id,
-            name,
-            type,
-            products,
-            itemsNumber,
-            status,
-            casherId,
-            payType,
-            date,
-            orderId,
-            amount,
-          } = item.data();
-          data.push({
-            dbId,
-            id,
-            name,
-            type,
-            products,
-            itemsNumber,
-            status,
-            casherId,
-            payType,
-            date,
-            orderId,
-            amount,
-            thisDocId: item.id,
+        let salesList: Debt[] = [];
+        docs.forEach((doc) => {
+          const data = doc.data();
+
+          data.debts.forEach((sale: Debt) => {
+            salesList.push(sale);
           });
+          if (data.debts.length !== 0) {
+            setSales([...sales, ...salesList]);
+          } else {
+            setSales([...sales]);
+          }
+          setLastDocInList(salesList[salesList.length - 1]);
         });
-        if (data.length !== 0) {
-          setSales([...sales, ...data]);
-        } else {
-          setSales([...sales]);
-        }
-        setLastDocInList(data[data.length - 1]);
       })
       .catch((error) => {
         console.error(error);
@@ -78,78 +61,69 @@ const useStatistics = () => {
   };
 
   useEffect(() => {
+    const paidDate = new Date();
+
+    const yearOfDate = paidDate.getFullYear();
+    const monthOfDate = paidDate.getMonth() + 1;
+
     const q = query(
-      collection(db, `Users/${user?.uid}/Payments`),
-      where("status", "==", "success"),
-      orderBy("paidDate", "desc"),
+      collection(
+        db,
+        `Users/${user?.uid}/Balcance/
+        ${yearOfDate}/${monthOfDate}/`
+      ),
+      orderBy("date", "desc"),
       limit(8)
     );
 
     const unSuscribe = onSnapshot(q, (docs) => {
-      let data: Debt[] = [];
-      docs.forEach((item) => {
-        const {
-          dbId,
-          id,
-          name,
-          type,
-          products,
-          itemsNumber,
-          status,
-          casherId,
-          payType,
-          date,
-          paidDate,
-          orderId,
-          amount,
-        } = item.data();
-        data.push({
-          dbId,
-          id,
-          name,
-          type,
-          products,
-          itemsNumber,
-          status,
-          casherId,
-          payType,
-          date,
-          paidDate,
-          orderId,
-          amount,
-          thisDocId: item.id,
+      let salesList: Debt[] = [];
+
+      docs.forEach((doc) => {
+        const data = doc.data();
+
+        data.debts.forEach((sale: Debt) => {
+          salesList.push(sale);
         });
       });
-      const lastDoc = data[data.length - 1];
+      const lastDoc = salesList[salesList.length - 1];
       setLastDocInList(lastDoc);
-      setSales(data);
+      setSales(salesList);
     });
 
     return unSuscribe;
   }, [setLastDocInList, user?.uid]);
 
   useEffect(() => {
-    const date = new Date();
-    const today = date.getTime();
-    const oneDay = 24 * 60 * 60 * 1000;
+    const now = new Date();
+    const startDay = new Date(now.setHours(0));
+    /* const oneDay = 24 * 60 * 60 * 1000; */
+    const yearOfDate = now.getFullYear();
+    const monthOfDate = now.getMonth() + 1;
+
     const q = query(
-      collection(db, `Users/${user?.uid}/Balcance`),
-      where("date", ">", Timestamp.fromDate(new Date(today - oneDay))),
-      where("date", "<=", Timestamp.fromDate(date)),
+      collection(
+        db,
+        `Users/${user?.uid}/Balcance/
+        ${yearOfDate}/${monthOfDate}/`
+      ),
+      where("date", ">", Timestamp.fromDate(startDay)),
+      where("date", "<=", Timestamp.fromDate(new Date(now.setHours(24)))),
       orderBy("date", "asc")
     );
     const unsubscribe = onSnapshot(
       q,
       (docs) => {
-        let data: Balance[] = []
+        let salesList: Balance[] = [];
         docs.forEach((item) => {
-          const { amount, date } = item.data();
-          data.push({
-            amount: amount,
-            date: date,
+          const data = item.data();
+          salesList.push({
+            amount: data.amount,
+            date: data.date,
+            debts: data.debts,
           });
         });
-        setBalanceAmount(data);
+        setBalanceAmount(salesList);
       },
       (error) => {
         console.error(error);

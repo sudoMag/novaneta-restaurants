@@ -52,6 +52,8 @@ const ClientCartPillName = styled.div<{
 
   & #delete {
     display: none;
+    width: 20px;
+    height: 20px;
     padding: 5px;
     align-items: center;
     justify-content: center;
@@ -63,6 +65,15 @@ const ClientCartPillName = styled.div<{
 
   &:hover #delete {
     display: flex;
+    width: 25px;
+    height: 25px;
+    padding: 5px;
+
+    & img {
+      height: 25px;
+      width: 25px;
+      padding: 2px;
+    }
   }
 
   &:hover #number {
@@ -100,7 +111,7 @@ const ClientCart = ({
       debt.products.forEach((item) => {
         number += item.quantity;
       });
-    })
+    });
     setDebtProductsNumber(number);
 
     if (order) {

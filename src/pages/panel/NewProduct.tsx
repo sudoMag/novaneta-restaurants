@@ -5,6 +5,7 @@ import { LeftContent, RightContent } from "../../components/SplittedPanel";
 import { Context } from "../../context/ProductContext";
 import Product from "../../interfaces/Product";
 import { PlansInfo } from "../../components/PlansInfo";
+import { NumericFormat } from "react-number-format";
 
 const Container = styled.section`
   height: 100%;
@@ -24,7 +25,7 @@ const NewRightLayout = styled(RightContent)`
 const StyledForm = styled.form``;
 
 const Input = styled.input`
-  height: 20px;
+  height: 35px;
   background-color: #444048;
   border-radius: 10px;
   border: solid 1px white;
@@ -131,10 +132,17 @@ const NewProduct = () => {
   const onInputChangeHandler = (
     e: ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
-    setData({
-      ...data,
-      [e.currentTarget.name]: e.currentTarget.value,
-    });
+    if (e.currentTarget.name === "price") {
+      setData({
+        ...data,
+        [e.currentTarget.name]: Number(e.target.value.replace(/\D/g, "")),
+      });
+    } else {
+      setData({
+        ...data,
+        [e.currentTarget.name]: e.currentTarget.value,
+      });
+    }
   };
 
   const InputsViewToggle = () => {
@@ -195,8 +203,12 @@ const NewProduct = () => {
                   <h5>Descripción</h5>
                 </InputAndText>
                 <InputAndText>
-                  <Input
-                    type="number"
+                  <NumericFormat
+                    allowLeadingZeros
+                    prefix="$"
+                    thousandSeparator="."
+                    decimalSeparator=","
+                    customInput={Input}
                     name="price"
                     value={data.price}
                     onChange={onInputChangeHandler}

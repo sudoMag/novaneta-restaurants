@@ -12,7 +12,7 @@ import DesktopIcon from "../../icons/pcicon.svg";
 import MobileIcon from "../../icons/mobileicon.svg";
 import Opacity from "../../components/animations/Opacity";
 import { useNavigate } from "react-router-dom";
-import { BrowserView, isMobile } from "react-device-detect";
+import { isDesktop, isMobile } from "react-device-detect";
 
 const HeadBarLeft = styled.div`
   width: 100%;
@@ -125,21 +125,23 @@ const Cash = () => {
         <PayBar />
       </CustomLeftLayout>
       <CustomRightLayout showMenu={showMenu}>
-        <BrowserView>
-          <HeadBarRight>
-            <ProfileCard onClick={() => navigate("/profiles")}>
-              {thisDevice?.deviceType === "desktop" ? (
-                <img src={DesktopIcon} alt="device" />
-              ) : (
-                <img src={MobileIcon} alt="device" />
-              )}
-              {thisDevice?.name}
-            </ProfileCard>
-            <h3>{userData?.name}</h3>
-            <ProfilePicture src={picture} />
-          </HeadBarRight>
-          <h3>Productos</h3>
-        </BrowserView>
+        {isDesktop ? (
+          <>
+            <HeadBarRight>
+              <ProfileCard onClick={() => navigate("/profiles")}>
+                {thisDevice?.deviceType === "desktop" ? (
+                  <img src={DesktopIcon} alt="device" />
+                ) : (
+                  <img src={MobileIcon} alt="device" />
+                )}
+                {thisDevice?.name}
+              </ProfileCard>
+              <h3>{userData?.name}</h3>
+              <ProfilePicture src={picture} />
+            </HeadBarRight>
+            <h3>Productos</h3>
+          </>
+        ) : null}
         {isMobile ? (
           <>
             <h3 onClick={() => setShowMenu(!showMenu)}>Productos</h3>

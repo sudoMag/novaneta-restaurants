@@ -18,6 +18,7 @@ import InfiniteScroll from "react-infinite-scroll-component";
 import ChartStatistic from "../../components/ChartStatistic";
 import { useEffect, useState } from "react";
 import { Timestamp } from "firebase/firestore";
+import useResume from "../../hooks/useResume";
 
 const Container = styled.main`
   width: 100%;
@@ -68,18 +69,32 @@ const SalesOfDayContainer = styled.section`
   grid-row: 1 / 1;
 `;
 
+const ExcelDownloadContainer = styled.section`
+  background-color: var(--bg-color);
+  padding: 20px;
+  border-radius: 10px;
+  grid-column: 1/ 1;
+  grid-row: 2 / 2;
+`;
+
 const CardLayoutTextContainer = styled.div`
   color: white;
 `;
 
+const DownloadButton = styled.div`
+  background-color: var(--bg-main-color);
+  padding: 10px 20px;
+  border-radius: 10px;
+  text-align: center;
+  cursor: pointer;
+`;
+
 const StatisticsPage = () => {
   const { balanceAmount, sales, bringMoreSales } = useStatistics();
+  const { monthsWithResume, getDataFromMonth } = useResume();
   const [balanceOfDay, setBalanceOfDay] = useState(0);
 
   const fromStringDate = (date: Timestamp) => {
-    console.log(`${new Date(date.toDate()).toLocaleDateString()} ${new Date(
-      date.toDate()
-    ).getHours()}:${new Date(date.toDate()).getMinutes()}`)
     return `${new Date(date.toDate()).toLocaleDateString()} ${new Date(
       date.toDate()
     ).getHours()}:${new Date(date.toDate()).getMinutes()}`;
@@ -189,6 +204,24 @@ const StatisticsPage = () => {
           </AccordionList>
         </InfiniteScroll>
       </SalesListContainer>
+      <ExcelDownloadContainer>
+        <Title color="neutral">Resumen</Title>
+        <AccordionList>
+          {monthsWithResume.map((month, index) => (
+            <Accordion
+              key={index}
+              className="bg-color-transparent border-opacity-0"
+            >
+              <AccordionHeader>{month.monthName}</AccordionHeader>
+              <AccordionBody>
+                <DownloadButton onClick={() => getDataFromMonth(month)}>
+                  Descargar (.xlsx)
+                </DownloadButton>
+              </AccordionBody>
+            </Accordion>
+          ))}
+        </AccordionList>
+      </ExcelDownloadContainer>
     </Container>
   );
 };

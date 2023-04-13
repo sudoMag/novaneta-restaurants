@@ -2,6 +2,7 @@ import styled from "styled-components";
 import Balance from "../interfaces/Balance";
 import { AreaChart, Card, Title } from "@tremor/react";
 import { numericFormatter } from "react-number-format";
+import { useEffect, useState } from "react";
 
 const Container = styled.section`
   overflow-y: auto;
@@ -22,39 +23,13 @@ const Container = styled.section`
   }
 `;
 
+type ChartData = {
+  date: string;
+  Hoy: number;
+};
+
 const ChartStatistic = ({ data }: { data: Balance[] }) => {
-  /* const chartdata = [
-    {
-      date: "Jan 22",
-      SemiAnalysis: 2890,
-      "The Pragmatic Engineer": 2338,
-    },
-    {
-      date: "Feb 22",
-      SemiAnalysis: 2756,
-      "The Pragmatic Engineer": 2103,
-    },
-    {
-      date: "Mar 22",
-      SemiAnalysis: 3322,
-      "The Pragmatic Engineer": 2194,
-    },
-    {
-      date: "Apr 22",
-      SemiAnalysis: 3470,
-      "The Pragmatic Engineer": 2108,
-    },
-    {
-      date: "May 22",
-      SemiAnalysis: 3475,
-      "The Pragmatic Engineer": 1812,
-    },
-    {
-      date: "Jun 22",
-      SemiAnalysis: 3129,
-      "The Pragmatic Engineer": 1726,
-    },
-  ]; */
+  const [dataChart, setDataChart] = useState<ChartData[]>([]);
 
   const dataFormatter = (number: number) => {
     return `$ ${numericFormatter(number.toString(), {
@@ -65,26 +40,39 @@ const ChartStatistic = ({ data }: { data: Balance[] }) => {
     })}`;
   };
 
+  useEffect(() => {
+    let newList: ChartData[] = [];
+
+    data.forEach((balance) => {
+      const date = balance.date.toDate();
+      const ItemIndex = newList.findIndex(
+        (item) => item.date === `${date.getHours()}hrs`
+      );
+
+      if (ItemIndex !== -1) {
+        newList[ItemIndex].Hoy = newList[ItemIndex].Hoy + balance.amount;
+      } else {
+        newList.push({
+          date: `${date.getHours()}hrs`,
+          Hoy: balance.amount,
+        });
+      }
+    });
+    setDataChart(newList);
+  }, [data]);
+
   return (
     <Container>
       <Card>
         <Title color="neutral">Ingresos del día</Title>
         <AreaChart
           className="h-72 mt-4"
-          data={data}
+          data={dataChart}
           index="date"
-          categories={["amount"]}
+          categories={["Hoy"]}
           colors={["indigo", "cyan"]}
           valueFormatter={dataFormatter}
         />
-        {/* <AreaChart
-          className="h-72 mt-4"
-          data={chartdata}
-          index="date"
-          categories={["SemiAnalysis", "The Pragmatic Engineer"]}
-          colors={["indigo", "cyan"]}
-          valueFormatter={dataFormatter}
-        /> */}
       </Card>
     </Container>
   );

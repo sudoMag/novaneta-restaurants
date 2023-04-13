@@ -12,6 +12,7 @@ import SelectButton from "./PlanSelectButton";
 import Product from "../interfaces/Product";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { isBrowser, isMobile } from "react-device-detect";
+import { NumericFormat } from "react-number-format";
 
 const Container = styled.section`
   margin: 10px;
@@ -21,7 +22,6 @@ const Container = styled.section`
   flex-direction: column;
   align-items: center;
   justify-items: start;
-  ${isBrowser ? "background-color: #7a7a7a38;" : null}
   border-radius: 20px;
   ${isMobile
     ? css`
@@ -35,11 +35,9 @@ export const PlanCard = styled.div<{ gridColumnsLayout: string }>`
   grid-gap: 10px;
   width: 98%;
   grid-template-columns: ${({ gridColumnsLayout }) => gridColumnsLayout};
-  margin: 5px 0;
-  border-radius: 20px;
-  border: solid 1px #383838;
   padding: 5px 10px;
-  background-color: #1d1e20;
+  gap: 5px 10px;
+  margin: 3px 0;
   justify-items: start;
   align-items: center;
 `;
@@ -72,7 +70,6 @@ export const PlanTitle = styled.h2`
   align-items: center;
   line-height: 1;
   font-size: 1em;
-  background-color: var(--bg-color);
   height: 100%;
   margin: 0;
   padding: 0 5px;
@@ -88,15 +85,10 @@ const ColumsHeadTitleContainer = styled.header<{ gridColumnsLayout: string }>`
   margin: 0;
   padding: 5px 5px;
   position: sticky;
-  ${isBrowser
-    ? css`
-        background-color: #7a7a7a38;
-        backdrop-filter: blur(10px);
-      `
-    : null}
   top: 10px;
   border-radius: 10px;
   width: 99%;
+  ${isBrowser ? css`justify-content: center;` : null}
   ${isMobile ? "justify-items: stretch;" : null}
 `;
 
@@ -245,9 +237,7 @@ export const PlansInfo = ({
           dataLength={Products.length}
           next={bringMoreProducts}
           hasMore
-          loader={
-            <LoaderContainer />
-          }
+          loader={<LoaderContainer />}
           scrollableTarget="infinite-scroll"
         >
           {Products.length !== 0 ? (
@@ -261,7 +251,15 @@ export const PlansInfo = ({
                   <div>{index + 1}</div>
                   <div>{Product.id}</div>
                   <PlanTitle>{Product.name}</PlanTitle>
-                  <PlanProduct>$ {Product.price}</PlanProduct>
+                  <NumericFormat
+                    allowLeadingZeros
+                    prefix="$"
+                    thousandSeparator="."
+                    decimalSeparator=","
+                    value={Product.price}
+                    displayType="text"
+                    renderText={(value) => <PlanProduct>{value}</PlanProduct>}
+                  />
                   <PlanDescription>{Product.description}</PlanDescription>
                   <ImgContainer imgUrl={Product.img_url} />
                 </PlanCard>

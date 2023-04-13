@@ -8,6 +8,7 @@ import {
   onSnapshot,
   orderBy,
   query,
+  setDoc,
   Timestamp,
   updateDoc,
   where,
@@ -107,6 +108,26 @@ export const PayContextProvider = ({
 
   const successfulPayment = (typePayment: string, deleteThisCart?: boolean) => {
     let totalAmount = 0;
+    const paidDate = new Date();
+
+    const yearOfDate = paidDate.getFullYear();
+    const monthOfDate = paidDate.getMonth() + 1;
+    const monthsNames = [
+      "",
+      "Enero",
+      "Febrero",
+      "Marzo",
+      "Abril",
+      "Mayo",
+      "Junio",
+      "Julio",
+      "Agosto",
+      "Sepiembre",
+      "Octiembre",
+      "Noviembre",
+      "Diciembre",
+    ];
+
     debtsInView.forEach((debt) => {
       debt.payType = typePayment;
       debt.collectorId = thisDevice?.id;
@@ -117,10 +138,41 @@ export const PayContextProvider = ({
       });
       totalAmount += debt.amount;
     });
-    addDoc(collection(db, `Users/${user?.uid}/Balcance`), {
-      date: Timestamp.now(),
-      amount: balanceAmount + totalAmount,
-    });
+    addDoc(
+      collection(
+        db,
+        `Users/${user?.uid}/Balcance/
+        ${yearOfDate}/${monthOfDate}/`
+      ),
+      {
+        date: Timestamp.now(),
+        amount: balanceAmount + totalAmount,
+        debts: debtsInView,
+      }
+    );
+    setDoc(
+      doc(
+        db,
+        `Users/${user?.uid}/Balcance/
+        ${yearOfDate}/MonthsResume/${monthsNames[monthOfDate]}`
+      ),
+      {
+        year: yearOfDate,
+        monthNumber: monthOfDate,
+        monthName: monthsNames[monthOfDate],
+      }
+    );
+    setDoc(
+      doc(
+        db,
+        `Users/${user?.uid}/Balcance/
+        ${yearOfDate}`
+      ),
+      {
+        year: yearOfDate,
+      }
+    );
+
     if (deleteThisCart) {
       setTimeout(() => deleteCart(debtsInView[0].dbId), 3000);
     }
@@ -205,7 +257,7 @@ export const PayContextProvider = ({
         docs.forEach((item) => {
           const { amount } = item.data();
           setBalanceAmount(amount);
-        })
+        });
       },
       (error) => {
         console.error(error);
