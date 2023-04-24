@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import Balance from "../interfaces/Balance";
+import Balance from "../utils/types/Balance";
 import { AreaChart, Card, Title } from "@tremor/react";
 import { numericFormatter } from "react-number-format";
 import { useEffect, useState } from "react";

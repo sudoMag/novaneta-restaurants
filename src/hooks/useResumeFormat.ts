@@ -1,5 +1,5 @@
-import Balance from "../interfaces/Balance";
-import Resume, { CellObject } from "../interfaces/Resume";
+import Balance from "../utils/types/Balance";
+import Resume, { CellObject } from "../utils/types/Resume";
 
 const useResumeFormat = () => {
   const createResumeFormat = (sales: Balance[]) => {

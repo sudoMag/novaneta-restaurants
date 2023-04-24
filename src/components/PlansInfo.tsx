@@ -9,7 +9,7 @@ import {
 } from "react";
 import { Context } from "../context/ProductContext";
 import SelectButton from "./PlanSelectButton";
-import Product from "../interfaces/Product";
+import Product from "../utils/types/Product";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { isBrowser, isMobile } from "react-device-detect";
 import { NumericFormat } from "react-number-format";

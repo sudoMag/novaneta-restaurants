@@ -4,7 +4,7 @@ import { db } from "../firebase/configuration";
 import XLSX from "sheetjs-style";
 
 import { UserContext } from "../context/UserContext";
-import Balance from "../interfaces/Balance";
+import Balance from "../utils/types/Balance";
 import useResumeFormat from "./useResumeFormat";
 
 const useResume = () => {

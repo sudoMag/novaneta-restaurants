@@ -6,7 +6,7 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
 } from "firebase/auth";
-import User from "../interfaces/User";
+import User from "../utils/types/User";
 
 const useAuth = () => {
   const navigate = useNavigate();

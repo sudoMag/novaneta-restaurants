@@ -15,21 +15,21 @@ import {
   useRef,
   useState,
 } from "react";
-import Device from "../interfaces/Device";
+import Device from "../utils/types/Device";
 import { UserContext } from "./UserContext";
 import { useNavigate } from "react-router-dom";
 
 interface IContext {
-  devices: Device[];
+  devices: Device<string>[];
   thisDevice: DocumentData | undefined;
-  thisDeviceInLocalStorage: Device | undefined;
-  setDeviceInLocalStorage: (device: Device) => void;
+  thisDeviceInLocalStorage: Device<string> | undefined;
+  setDeviceInLocalStorage: (device: Device<string>) => void;
   getDevices: {
     get: () => Promise<void>;
     cancel: () => void;
   };
-  addDevice: (device: Device) => void;
-  newDevice: (device: Device) => void;
+  addDevice: (device: Device<string>) => void;
+  newDevice: (device: Device<string>) => void;
   nextDirect: boolean;
   nextDirectToggle: () => void;
 }
@@ -38,13 +38,13 @@ export const DeviceContext = createContext<IContext>({
   devices: [],
   thisDevice: undefined,
   thisDeviceInLocalStorage: undefined,
-  setDeviceInLocalStorage: (device: Device) => {},
+  setDeviceInLocalStorage: (device: Device<string>) => {},
   getDevices: {
     get: async () => {},
     cancel: () => {},
   },
-  addDevice: (device: Device) => {},
-  newDevice: (device: Device) => {},
+  addDevice: (device: Device<string>) => {},
+  newDevice: (device: Device<string>) => {},
   nextDirect: false,
   nextDirectToggle: () => {},
 });
@@ -57,9 +57,9 @@ export const DeviceContextProvider = ({
   const navigate = useNavigate();
   const { user } = useContext(UserContext);
   const cancelled = useRef(false);
-  const [devices, setDevices] = useState<Device[]>([]);
+  const [devices, setDevices] = useState<Device<string>[]>([]);
   const [thisDeviceInLocalStorage, setThisDeviceInLocalStorage] = useState<
-    Device | undefined
+    Device<string> | undefined
   >(undefined);
   const [thisDevice, setThisDevice] = useState<DocumentData | undefined>(
     undefined
@@ -107,7 +107,7 @@ export const DeviceContextProvider = ({
     [user?.uid]
   );
 
-  const addDevice = (device: Device) => {
+  const addDevice = (device: Device<string>) => {
     if (user) {
       return addDoc(collection(db, `Users/${user?.uid}/Devices`), device).then(
         (doc) => {
@@ -117,7 +117,7 @@ export const DeviceContextProvider = ({
     }
   };
 
-  const setDeviceInLocalStorage = (device: Device) => {
+  const setDeviceInLocalStorage = (device: Device<string>) => {
     const { id, name, deviceType, profileImg } = device;
     localStorage.setItem(
       "device",
@@ -131,7 +131,7 @@ export const DeviceContextProvider = ({
     setThisDevice({ ...device, id: id });
   };
 
-  const newDevice = (device: Device) => {
+  const newDevice = (device: Device<string>) => {
     addDevice(device)?.then((id) => {
       setDeviceInLocalStorage({ ...device, id: id });
       navigate("/panel/cash/select");

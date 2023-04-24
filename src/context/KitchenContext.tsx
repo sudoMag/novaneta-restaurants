@@ -10,8 +10,8 @@ import {
 } from "firebase/firestore";
 import { createContext, useContext, useEffect, useState } from "react";
 import { db } from "../firebase/configuration";
-import CartToClient from "../interfaces/CartToClient";
-import Order from "../interfaces/Order";
+import CartToClient from "../utils/types/CartToClient";
+import Order from "../utils/types/Order";
 import { CashContext } from "./CashContext";
 import { UserContext } from "./UserContext";
 

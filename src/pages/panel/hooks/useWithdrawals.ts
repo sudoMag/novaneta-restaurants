@@ -1,7 +1,7 @@
 import { useCallback, useState } from "react";
 import { collection, getDocs } from "firebase/firestore/lite";
 import { db } from "../../../firebase/configuration";
-import Withdrawal from "../../../interfaces/Withdrawal";
+import Withdrawal from "../../../utils/types/Withdrawal";
 
 const useWithdrawals = () => {
   const [withdrawals, setWithdrawals] = useState<Withdrawal[]>();

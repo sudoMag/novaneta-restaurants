@@ -1,8 +1,15 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+
+    // Regla para permitir la lectura y escritura si el UID es igual al nombre de algún documento en la ruta /Users/idDelUsuario
+    match /Users/{userId}/{document=**} {
+      allow read, write: if request.auth.uid == userId;
+    }
+
+    // Regla para denegar la lectura y escritura en todas las demás colecciones
     match /{document=**} {
-      allow read, write;
+      allow read, write: if false;
     }
   }
 }

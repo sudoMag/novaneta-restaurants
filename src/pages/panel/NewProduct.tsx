@@ -3,7 +3,7 @@ import styled from "styled-components";
 import Logo from "../../icons/logowhite.svg";
 import { LeftContent, RightContent } from "../../components/SplittedPanel";
 import { Context } from "../../context/ProductContext";
-import Product from "../../interfaces/Product";
+import Product from "../../utils/types/Product";
 import { PlansInfo } from "../../components/PlansInfo";
 import { NumericFormat } from "react-number-format";
 

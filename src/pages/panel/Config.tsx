@@ -3,9 +3,9 @@ import styled from "styled-components";
 import CustomNavLink from "../../components/CustomNavLink";
 import { LeftContent, RightContent } from "../../components/SplittedPanel";
 import Logo from "../../icons/logowhite.svg";
-import Appearance from "./Config Pages/Appearance";
-import Profiles from "./Config Pages/Profiles";
-import Tables from "./Config Pages/Tables";
+import Appearance from "./Config Pages/Appearance/Appearance";
+import Profiles from "./Config Pages/Profiles/Profiles";
+import Tables from "./Config Pages/Tables/Tables";
 
 const Container = styled.section`
   width: 100%;

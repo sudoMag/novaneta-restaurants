@@ -8,7 +8,7 @@ import {
   useState,
 } from "react";
 import { UserContext } from "./UserContext";
-import Table from "../interfaces/Table";
+import Table from "../utils/types/Table";
 
 interface IContext {
   tables: Table[];

@@ -23,9 +23,9 @@ import {
 } from "react";
 import { useNavigate } from "react-router-dom";
 import { db } from "../firebase/configuration";
-import CartToClient from "../interfaces/CartToClient";
-import Debt from "../interfaces/Debt";
-import Order from "../interfaces/Order";
+import CartToClient from "../utils/types/CartToClient";
+import Debt from "../utils/types/Debt";
+import Order from "../utils/types/Order";
 import { CashContext } from "./CashContext";
 import { DeviceContext } from "./DeviceContext";
 import { KitchenContext } from "./KitchenContext";
@@ -36,7 +36,7 @@ interface Pay {
   debts: Debt[];
   debtsInView: Debt[];
   addDebt: (cart: CartToClient, order: Order) => void;
-  successfulPayment: (typePayment: string) => void;
+  successfulPayment: (typePayment: Debt["payType"],) => void;
   clients: DocumentData[];
   registNewClient: (client: {
     firstName: string;
@@ -56,7 +56,7 @@ export const PayContext = createContext<Pay>({
   debts: [],
   debtsInView: [],
   addDebt: (cart: CartToClient, order: Order) => {},
-  successfulPayment: (typePayment: string) => {},
+  successfulPayment: (typePayment: Debt["payType"],) => {},
   clients: [],
   registNewClient: (client: {
     firstName: string;
@@ -106,7 +106,7 @@ export const PayContextProvider = ({
     }
   };
 
-  const successfulPayment = (typePayment: string, deleteThisCart?: boolean) => {
+  const successfulPayment = (typePayment: Debt["payType"], deleteThisCart?: boolean) => {
     let totalAmount = 0;
     const paidDate = new Date();
 

@@ -12,7 +12,7 @@ import {
   orderBy,
 } from "firebase/firestore";
 import { db, storage } from "../firebase/configuration";
-import Product from "../interfaces/Product";
+import Product from "../utils/types/Product";
 import {
   createContext,
   useState,

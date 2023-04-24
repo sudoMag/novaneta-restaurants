@@ -12,8 +12,8 @@ import {
 import { db } from "../firebase/configuration";
 import { UserContext } from "../context/UserContext";
 import { useContext, useEffect, useState } from "react";
-import Debt from "../interfaces/Debt";
-import Balance from "../interfaces/Balance";
+import Debt from "../utils/types/Debt";
+import Balance from "../utils/types/Balance";
 
 const useStatistics = () => {
   const { user } = useContext(UserContext);

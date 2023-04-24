@@ -10,9 +10,9 @@ import {
 } from "firebase/firestore";
 import { createContext, useContext, useEffect, useState } from "react";
 import { db } from "../firebase/configuration";
-import CartToClient from "../interfaces/CartToClient";
-import Product from "../interfaces/Product";
-import ProductInCart from "../interfaces/ProductInCart";
+import CartToClient from "../utils/types/CartToClient";
+import Product from "../utils/types/Product";
+import ProductInCart from "../utils/types/ProductInCart";
 import { UserContext } from "./UserContext";
 
 interface IContext {
@@ -24,7 +24,7 @@ interface IContext {
   cartId: string | undefined;
   selectedCart: number;
   setIdforCartId: (id: string | undefined) => void;
-  createClientCart: (name: string, type?: string) => void;
+  createClientCart: (name: string, type?: "in table" | "to go") => void;
   addToCart: (product: Product) => void;
   addToClientCart: (id: string, product: Product) => void;
   emptyClientCart: (id: string, sendedToKitchen?: boolean) => void;
@@ -44,7 +44,7 @@ export const CashContext = createContext<IContext>({
   cartId: undefined,
   selectedCart: 0,
   setIdforCartId: (id: string | undefined) => {},
-  createClientCart: (name: string, type?: string) => {},
+  createClientCart: (name: string, type?: "in table" | "to go") => {},
   addToClientCart: (id: string, product: Product) => {},
   emptyClientCart: (id: string, sendedToKitchen?: boolean) => {},
   removeToCart: (productID: string) => {},
@@ -88,11 +88,11 @@ export const CashContextProvider = ({
     }
   };
 
-  const createClientCart = (name: string, type?: string) => {
+  const createClientCart = (name: string, type?: "in table" | "to go") => {
     addDoc(collection(db, `Users/${user?.uid}/Carts`), {
       id: cartToClient.length,
       name: name,
-      type: type ? type : "in table",
+      type: type ?? "in table",
       products: [],
       itemsNumber: 0,
       status: "empty",

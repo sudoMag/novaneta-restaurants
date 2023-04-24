@@ -8,7 +8,9 @@ import MobileIcon from "../icons/mobileicon.svg";
 import OpacityAndTranslate from "../components/animations/OpacityAndTranslate";
 import Opacity from "../components/animations/Opacity";
 import ScaleZoom from "../components/animations/ScaleZoom";
-import Device from "../interfaces/Device";
+import Device from "../utils/types/Device";
+import { Letter } from "../utils/types/ProfileColorPallete";
+import ProfileFace from "../components/ProfilePicture";
 
 const Container = styled.div`
   display: flex;
@@ -183,7 +185,7 @@ const Devices = ({ profiles }: { profiles: boolean }) => {
     setName(e.target.value);
   };
 
-  const clickProfileHandler = (device: Device) => {
+  const clickProfileHandler = (device: Device<string>) => {
     setDeviceInLocalStorage(device);
     setAnimateProfile(true);
     setTimeout(() => {
@@ -225,14 +227,12 @@ const Devices = ({ profiles }: { profiles: boolean }) => {
                 onClick={() => clickProfileHandler(device)}
               >
                 <RolePill>{device.role}</RolePill>
-                <img
+                <ProfileFace
+                  profile={{
+                    ...(device as unknown as Device<Letter[]>),
+                    name: device?.name.toLowerCase() as unknown as Letter[],
+                  }}
                   id="profile-img"
-                  src={
-                    device.role === "admin"
-                      ? "/otter-admin-profile.png"
-                      : "/water-profile.png"
-                  }
-                  alt="profile"
                 />
                 <h2>{device.name}</h2>
               </ProfileCard>

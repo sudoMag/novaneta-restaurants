@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import { Route, Routes } from "react-router-dom";
-import Cash from "./Cash";
-import Pay from "./Pay";
+import Cash from "./Cash/Cash";
+import Pay from "./Pay/Pay";
 import { isMobile } from "react-device-detect";
 
 const Container = styled.section`

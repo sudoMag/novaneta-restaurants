@@ -8,7 +8,7 @@ import {
 import { isMobile, isDesktop } from "react-device-detect";
 import { Link, redirect } from "react-router-dom";
 import styled, { css } from "styled-components";
-import User from "../interfaces/User";
+import User from "../utils/types/User";
 import useAuth from "../hooks/useAuth";
 import { UserContext } from "../context/UserContext";
 import { LeftContent, RightContent } from "../components/SplittedPanel";
