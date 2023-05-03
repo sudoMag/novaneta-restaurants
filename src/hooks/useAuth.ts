@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { auth } from "../firebase/configuration";
-import { setDoc, doc } from "firebase/firestore/lite";
+import { setDoc, doc } from "firebase/firestore";
 import { db } from "../firebase/configuration";
 import {
   createUserWithEmailAndPassword,
@@ -26,23 +26,19 @@ const useAuth = () => {
 
   const createNewUser = async (user: User) => {
     const { email, password, phone, name } = user;
-    console.log(email, password);
+    console.log(email, password, phone, name);
 
-    const userCredentials = await createUserWithEmailAndPassword(
-      auth,
-      email,
-      password
-    ).then((userData) => userData);
-
-    const userID = userCredentials.user.uid;
-
-    await setDoc(doc(db, "Users", userID), {
-      name,
-      email,
-      phone,
-    });
-    console.log(userID);
-    navigate("/");
+    createUserWithEmailAndPassword(auth, email, password)
+      .then((userData) => userData)
+      .then((userData) => {
+        setDoc(doc(db, "Users", userData.user.uid), {
+          name,
+          email,
+          phone,
+        });
+        console.log(userData.user.uid);
+        navigate("/new-profile");
+      });
   };
 
   return { signIn, createNewUser };

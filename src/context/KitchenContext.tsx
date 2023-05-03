@@ -43,6 +43,16 @@ export const KitchenContextProvider = ({
   const [ordersInView, setOrderInView] = useState<Order[] | undefined>();
   const { emptyClientCart, cartId } = useContext(CashContext);
 
+  /**
+   * Sends the client cart to the kitchen by adding a
+   * new document to the KitchenOrders collection in
+   * Firestore.
+   *
+   * @param {CartToClient} cart - The client cart to be
+   * sent to the kitchen.
+   *
+   * @returns void
+   */
   const sendToTheKitchen = (cart: CartToClient) => {
     addDoc(collection(db, `Users/${user?.uid}/KitchenOrders`), {
       ...cart,
@@ -58,6 +68,15 @@ export const KitchenContextProvider = ({
       });
   };
 
+  /**
+   * Updates the status of the order with the provided
+   * ID to "success" in Firestore.
+   *
+   * @param {string} orderId - The ID of the order
+   * to be updated.
+   *
+   * @returns void
+   */
   const endOrder = (orderId: string) => {
     let newOrderUpdate = orders.find((order) => order.thisDocId === orderId);
     if (newOrderUpdate !== undefined) {
@@ -68,6 +87,18 @@ export const KitchenContextProvider = ({
     }
   };
 
+  /**
+   * Increases the quantity of the product with the
+   * provided ID in the order with the provided ID by
+   * 1 in Firestore.
+   *
+   * @param {string} id - The ID of the order to be
+   * updated.
+   * @param {string} productId - The ID of the product
+   * to be updated.
+   *
+   * @returns void
+   */
   const increaseQuantity = (id: string, productId: string) => {
     let newOrderUpdate = orders.find((order) => order.thisDocId === id);
 
@@ -97,6 +128,16 @@ export const KitchenContextProvider = ({
     }
   };
 
+  /**
+ * Decreases the quantity of the product with the provided
+ * ID in the order with the provided ID by 1 in Firestore.
+ *
+ * @param {string} id - The ID of the order to be updated.
+ * @param {string} productId - The ID of the product to be
+ * updated.
+ *
+ * @returns void
+ */
   const reduceQuantity = (id: string, productId: string) => {
     let newOrderUpdate = orders.find((order) => order.thisDocId === id);
 

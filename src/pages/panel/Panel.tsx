@@ -7,16 +7,16 @@ import NovanetaIcon from "../../icons/icon.svg";
 import CashIcon from "../../icons/cash.svg";
 import NewProductIcon from "../../icons/plus.svg";
 import ConfigIcon from "../../icons/config.svg";
-import NewProduct from "./NewProduct";
-import Config from "./Config";
+import NewProduct from "./NewProduct/NewProduct";
+import Config from "./Config Pages/Config";
 import { CashContextProvider } from "../../context/CashContext";
-import Kitchen from "./Kitchen";
+import Kitchen from "./Kitchen/Kitchen";
 import KitchenIcon from "../../icons/kitchen.svg";
 import StatisticsIcon from "../../icons/statistics.svg";
 import { KitchenContextProvider } from "../../context/KitchenContext";
 import { PayContextProvider } from "../../context/PayContext";
 import { BrowserView, isMobile, MobileView } from "react-device-detect";
-import StatisticsPage from "./StatisticsPage";
+import StatisticsPage from "./Statistics/StatisticsPage";
 
 const Container = styled.section`
   display: flex;

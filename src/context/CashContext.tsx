@@ -15,6 +15,52 @@ import Product from "../utils/types/Product";
 import ProductInCart from "../utils/types/ProductInCart";
 import { UserContext } from "./UserContext";
 
+/**
+ * Defines the structure of the CashContext object, which
+ * contains data and functions related to the cash register.
+ *
+ * @interface IContext
+ * @property {ProductInCart[]} cart - An array of products
+ * in the cart.
+ * @property {CartToClient[]} cartToClient - An array of
+ * client carts.
+ * @property {Function} showClientCart - A function that
+ * sets the cart state to the products array of the cart
+ * with the provided name.
+ * @property {Function} selectEventToggle - A function
+ * that toggles the boolean value of selectClientEvent
+ * state.
+ * @property {boolean} selectClientEvent - A boolean value
+ * that indicates whether a client event is currently
+ * selected.
+ * @property {string | undefined} cartId - The ID of the
+ * cart in Firestore, or undefined if there is no cart
+ * in Firestore.
+ * @property {number} selectedCart - The index of the
+ * selected client cart.
+ * @property {Function} setIdforCartId - A function that
+ * sets the cart ID state to the provided ID.
+ * @property {Function} createClientCart - A function
+ * that creates a new client cart with the provided
+ * name and type.
+ * @property {Function} addToCart - A function that
+ * adds a product to the cart.
+ * @property {Function} addToClientCart - A function
+ * that adds a product to the client cart with the
+ * provided ID.
+ * @property {Function} emptyClientCart - A function
+ * that empties the client cart with the provided ID.
+ * @property {Function} removeToCart - A function that
+ * removes a product from the cart.
+ * @property {Function} deleteCart - A function that
+ * deletes the cart with the provided Firestore ID.
+ * @property {Function} increaseQuantity - A function
+ * that increases the quantity of the product with the
+ * provided ID in the cart by 1.
+ * @property {Function} reduceQuantity - A function
+ * that decreases the quantity of the product with the
+ * provided ID in the cart by 1.
+ */
 interface IContext {
   cart: ProductInCart[];
   cartToClient: CartToClient[];
@@ -34,6 +80,53 @@ interface IContext {
   reduceQuantity: (productID: string) => void;
 }
 
+/**
+ * The CashContext object provides a context that
+ * can be used to pass data and functions related
+ * to the cash register down the component tree.
+ *
+ * @typedef {Object} CashContext
+ * @property {ProductInCart[]} cart - An array of
+ * products in the cart.
+ * @property {CartToClient[]} cartToClient - An
+ * array of client carts.
+ * @property {Function} showClientCart - A function
+ * that sets the cart state to the products array
+ * of the cart with the provided name.
+ * @property {Function} selectEventToggle - A
+ * function that toggles the boolean value of
+ * selectClientEvent state.
+ * @property {boolean} selectClientEvent - A
+ * boolean value that indicates whether a client
+ * event is currently selected.
+ * @property {string | undefined} cartId - The ID
+ * of the cart in Firestore, or undefined if there
+ * is no cart in Firestore.
+ * @property {number} selectedCart - The index of
+ * the selected client cart.
+ * @property {Function} setIdforCartId - A function
+ * that sets the cart ID state to the provided ID.
+ * @property {Function} createClientCart - A function
+ * that creates a new client cart with the provided
+ * name and type.
+ * @property {Function} addToCart - A function that
+ * adds a product to the cart.
+ * @property {Function} addToClientCart - A function
+ * that adds a product to the client cart with the
+ * provided ID.
+ * @property {Function} emptyClientCart - A function
+ * that empties the client cart with the provided ID.
+ * @property {Function} removeToCart - A function that
+ * removes a product from the cart.
+ * @property {Function} deleteCart - A function that
+ * deletes the cart with the provided Firestore ID.
+ * @property {Function} increaseQuantity - A function
+ * that increases the quantity of the product with the
+ * provided ID in the cart by 1.
+ * @property {Function} reduceQuantity - A function
+ * that decreases the quantity of the product with the
+ * provided ID in the cart by 1.
+ */
 export const CashContext = createContext<IContext>({
   cart: [],
   cartToClient: [],
@@ -65,11 +158,31 @@ export const CashContextProvider = ({
   const [cartToClient, setCartToClient] = useState<CartToClient[]>([]);
   const [selectClientEvent, setSelectClientEvent] = useState(false);
 
+  /**
+   * Sets a new value for the `cartId` state
+   * variable and updates the `selectedCart`
+   * state variable based on the provided `id`.
+   *
+   * @param id A string representing the id of the cart.
+   *
+   * @returns void
+   */
   const setIdforCartId = (id: string | undefined) => {
     setCartId(id);
     setSelectedCart(cartToClient.findIndex((item) => item.dbId === id));
   };
 
+  /**
+   * Add the given product to the client cart.
+   * If a cart is already selected, the product
+   * is added to that cart in the user's client.
+   * Otherwise, the product is added to the cart
+   * in the application state.
+   *
+   * @param product The product to be added to the cart.
+   *
+   * @returns void
+   */
   const addToCart = (product: Product) => {
     if (cartId === undefined) {
       let machProductIndex = cart.findIndex(
@@ -88,6 +201,16 @@ export const CashContextProvider = ({
     }
   };
 
+  /**
+   * Creates a new cart for the current user in Firestore
+   * with the given name and type.
+   *
+   * @param name The name of the cart to be created.
+   * @param type An optional string indicating the type
+   * of cart. Default is "in table".
+   *
+   * @returns void.
+   */
   const createClientCart = (name: string, type?: "in table" | "to go") => {
     addDoc(collection(db, `Users/${user?.uid}/Carts`), {
       id: cartToClient.length,
@@ -102,6 +225,18 @@ export const CashContextProvider = ({
     });
   };
 
+  /**
+   * Adds the given product to the cart with the provided
+   * ID in the user's client. If the product is already in
+   * the cart, its quantity is incremented. Otherwise,
+   * a new item is added to the cart with a quantity of 1.
+   *
+   * @param id The ID of the cart to which the product is
+   * to be added.
+   * @param product The product to be added to the cart.
+   *
+   * @returns void
+   */
   const addToClientCart = (id: string, product: Product) => {
     let newCart = cartToClient.find((item) => item.dbId === id);
     if (newCart !== undefined) {
@@ -144,6 +279,18 @@ export const CashContextProvider = ({
     }
   };
 
+  /**
+   * Empties the cart with the provided ID in the user's
+   * client. If `sendedToKitchen` is `true`, sets the cart
+   * status to "in kitchen". Otherwise, sets it to "empty".
+   *
+   * @param id The ID of the cart to be emptied.
+   * @param sendedToKitchen An optional boolean indicating
+   * whether the cart has been sent to the kitchen. Default
+   * is `false`.
+   *
+   * @returns void
+   */
   const emptyClientCart = (id: string, sendedToKitchen?: boolean) => {
     let newCart = cartToClient.find((item) => item.dbId === id);
     let number = 0;
@@ -169,10 +316,28 @@ export const CashContextProvider = ({
     }
   };
 
+  /**
+   * Deletes the cart with the provided ID from Firestore.
+   *
+   * @param dbId The ID of the cart to be deleted.
+   *
+   * @returns void
+   */
   const deleteCart = (dbId: string) => {
     deleteDoc(doc(db, `Users/${user?.uid}/Carts/${dbId}`));
   };
 
+  /**
+   * Removes the product with the provided ID from the cart.
+   * If a cart ID is specified, updates the corresponding
+   * cart in Firestore. Otherwise, updates the local state
+   * of the cart.
+   *
+   * @param productID The ID of the product to be removed
+   * from the cart.
+   *
+   * @returns void
+   */
   const removeToCart = (productID: string) => {
     if (cartId === undefined) {
       let cartWithoutProduct = cart.filter(
@@ -203,6 +368,16 @@ export const CashContextProvider = ({
     }
   };
 
+  /**
+   * Increases the quantity of the product with the provided
+   * ID in the cart by 1. If a cart ID is specified, updates
+   * the corresponding cart in Firestore. Otherwise, updates
+   * the local state of the cart.
+   *
+   * @param productID The ID of the product to be updated.
+   *
+   * @returns void
+   */
   const increaseQuantity = (productID: string) => {
     if (cartId === undefined) {
       let itemIndex = cart.findIndex((item) => item.product.id === productID);
@@ -239,6 +414,16 @@ export const CashContextProvider = ({
     }
   };
 
+  /**
+   * Decreases the quantity of the product with the provided
+   * ID in the cart by 1. If a cart ID is specified, updates
+   * the corresponding cart in Firestore. Otherwise, updates
+   * the local state of the cart.
+   *
+   * @param productID The ID of the product to be updated.
+   *
+   * @returns void
+   */
   const reduceQuantity = (productID: string) => {
     if (cartId === undefined) {
       let itemIndex = cart.findIndex((item) => item.product.id === productID);
@@ -278,10 +463,24 @@ export const CashContextProvider = ({
     }
   };
 
+  /**
+   * Toggles the boolean value of selectClientEvent state
+   * between true and false.
+   *
+   * @returns void
+   */
   const selectEventToggle = () => {
     setSelectClientEvent(!selectClientEvent);
   };
 
+  /**
+   * Sets the cart state to the products array of the cart
+   * with the provided name.
+   *
+   * @param name The name of the cart to be displayed.
+   *
+   * @returns void
+   */
   const showClientCart = (name: string) => {
     const cartMatch = cartToClient.find((item) => item.name === name);
 

@@ -1,6 +1,14 @@
 import { useRef, WheelEvent } from "react";
 import useScroll from "./useScroll";
 
+/**
+ * Handles the scroll wheel event to perform a horizontal scrolling action.
+ *
+ * @returns An object with three properties:
+ * - ScrollRef: a mutable reference to the DOM element that will be scrolled.
+ * - wheelHandler: an event handler that is called each time the wheel is scrolled.
+ * - scrollToLeft: a function that can be called to scroll the element to the left.
+ */
 const useScrollWheel = () => {
   const { ScrollRef, scrollToLeft } = useScroll();
   const scrollNumber = useRef<number>(0);
@@ -18,7 +26,7 @@ const useScrollWheel = () => {
     }
   };
 
-  return {ScrollRef, wheelHandler, scrollToLeft};
-}
+  return { ScrollRef, wheelHandler, scrollToLeft };
+};
 
 export default useScrollWheel;

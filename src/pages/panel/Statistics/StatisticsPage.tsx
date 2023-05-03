@@ -1,5 +1,4 @@
-import styled from "styled-components";
-import useStatistics from "../../hooks/useStatistics";
+import useStatistics from "../../../hooks/useStatistics";
 import {
   Title,
   Metric,
@@ -15,98 +14,24 @@ import {
 } from "@tremor/react";
 import { NumericFormat, numericFormatter } from "react-number-format";
 import InfiniteScroll from "react-infinite-scroll-component";
-import ChartStatistic from "../../components/ChartStatistic";
-import { useEffect, useState } from "react";
-import { Timestamp } from "firebase/firestore";
-import useResume from "../../hooks/useResume";
-
-const Container = styled.main`
-  width: 100%;
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
-  padding: 20px;
-  grid-template-rows: repeat(2, 1fr);
-`;
-
-const SalesListContainer = styled.div`
-  overflow-y: auto;
-  background-color: var(--bg-color);
-  padding: 20px;
-  border-radius: 10px;
-  grid-column: 3/ 3;
-  grid-row: 1 / 1;
-
-  &::-webkit-scrollbar {
-    display: none;
-  }
-
-  &.infinite-scroll-component {
-    &::-webkit-scrollbar {
-      display: none;
-    }
-  }
-
-  /* & li {
-    display: flex;
-    justify-content: space-between;
-    padding: 5px 10px;
-    background-color: #2a2a2a;
-    border-radius: 10px;
-    margin: 5px 0;
-  } */
-`;
-
-const SpaceLoading = styled.div`
-  height: 10px;
-`;
-
-const SalesOfDayContainer = styled.section`
-  background-color: var(--bg-color);
-  padding: 20px;
-  border-radius: 10px;
-  grid-column: 4/ 4;
-  grid-row: 1 / 1;
-`;
-
-const ExcelDownloadContainer = styled.section`
-  background-color: var(--bg-color);
-  padding: 20px;
-  border-radius: 10px;
-  grid-column: 1/ 1;
-  grid-row: 2 / 2;
-`;
-
-const CardLayoutTextContainer = styled.div`
-  color: white;
-`;
-
-const DownloadButton = styled.div`
-  background-color: var(--bg-main-color);
-  padding: 10px 20px;
-  border-radius: 10px;
-  text-align: center;
-  cursor: pointer;
-`;
+import ChartStatistic from "./components/Chart/ChartStatistic";
+import useResume from "../../../hooks/useResume";
+import {
+  CardLayoutTextContainer,
+  Container,
+  DownloadButton,
+  ExcelDownloadContainer,
+  SalesListContainer,
+  SalesOfDayContainer,
+  SpaceLoading,
+} from "./StatisticsStyles";
+import useDailyBalance from "./hooks/useDailyBalance";
+import timestampToString from "../../../utils/TimeStampToString";
 
 const StatisticsPage = () => {
   const { balanceAmount, sales, bringMoreSales } = useStatistics();
   const { monthsWithResume, getDataFromMonth } = useResume();
-  const [balanceOfDay, setBalanceOfDay] = useState(0);
-
-  const fromStringDate = (date: Timestamp) => {
-    return `${new Date(date.toDate()).toLocaleDateString()} ${new Date(
-      date.toDate()
-    ).getHours()}:${new Date(date.toDate()).getMinutes()}`;
-  };
-
-  useEffect(() => {
-    let amount = 0;
-    balanceAmount.forEach((item) => {
-      amount += item.amount;
-    });
-    setBalanceOfDay(amount);
-  }, [balanceAmount]);
+  const { balanceOfDay } = useDailyBalance(balanceAmount);
 
   return (
     <Container>
@@ -195,7 +120,7 @@ const StatisticsPage = () => {
                         : null}
                     </Badge>
                     {sale.paidDate !== undefined ? (
-                      <Text>{fromStringDate(sale.paidDate)}</Text>
+                      <Text>{timestampToString(sale.paidDate)}</Text>
                     ) : null}
                   </Flex>
                 </AccordionBody>

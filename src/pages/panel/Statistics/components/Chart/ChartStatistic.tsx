@@ -1,44 +1,12 @@
-import styled from "styled-components";
-import Balance from "../utils/types/Balance";
+import Balance from "../../../../../utils/types/Balance";
 import { AreaChart, Card, Title } from "@tremor/react";
-import { numericFormatter } from "react-number-format";
 import { useEffect, useState } from "react";
-
-const Container = styled.section`
-  overflow-y: auto;
-  background-color: var(--bg-color);
-  /* padding: 20px; */
-  border-radius: 10px;
-  grid-column: 1 / 3;
-  grid-row: 1 / 1;
-
-  & .tremor-Card-root {
-    background-color: transparent;
-    --tw-ring-opacity: 0;
-    box-shadow: none;
-  }
-
-  &::-webkit-scrollbar {
-    display: none;
-  }
-`;
-
-type ChartData = {
-  date: string;
-  Hoy: number;
-};
+import { ChartData } from "./types";
+import { Container } from "./ChartStyles";
+import numberFormat from "../../../../../utils/numberFormat";
 
 const ChartStatistic = ({ data }: { data: Balance[] }) => {
   const [dataChart, setDataChart] = useState<ChartData[]>([]);
-
-  const dataFormatter = (number: number) => {
-    return `$ ${numericFormatter(number.toString(), {
-      allowLeadingZeros: true,
-      thousandSeparator: ".",
-      decimalSeparator: ",",
-      displayType: "text",
-    })}`;
-  };
 
   useEffect(() => {
     let newList: ChartData[] = [];
@@ -71,7 +39,7 @@ const ChartStatistic = ({ data }: { data: Balance[] }) => {
           index="date"
           categories={["Hoy"]}
           colors={["indigo", "cyan"]}
-          valueFormatter={dataFormatter}
+          valueFormatter={numberFormat}
         />
       </Card>
     </Container>

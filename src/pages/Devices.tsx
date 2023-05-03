@@ -249,7 +249,7 @@ const Devices = ({ profiles }: { profiles: boolean }) => {
           <Form>
             {devices.length === 0 ? <span>Admin</span> : null}
             <Input
-              placeholder="Nombre y Apellido del cajero"
+              placeholder="Nombre y Apellido del perfil"
               value={name}
               onChange={nameHandler}
             ></Input>

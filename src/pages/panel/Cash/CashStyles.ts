@@ -79,16 +79,30 @@ export const ProfilePicture = styled.img`
   margin-right: 10px;
 `;
 
-export const LetterProfile = styled.div<{ colorPalette: ProfileColorPalette }>`
+export const LetterProfile = styled.div<{
+  colorPalette: ProfileColorPalette;
+  width?: number;
+  height?: number;
+}>`
   height: 40px;
   width: 40px;
+  ${({ width }) => width && `width: ${width}px;`}
+  ${({ height }) => height && `height: ${height}px;`}
   display: flex;
   border-radius: 30px;
   margin-right: 10px;
   background-color: #341c7c;
   color: #cfc5c5;
-  ${({colorPalette}) => colorPalette && css`background-color: ${colorPalette.bg};`}
-  ${({colorPalette}) => colorPalette && css`color: ${colorPalette.txt};`}
+  ${({ colorPalette }) =>
+    colorPalette &&
+    css`
+      background-color: ${colorPalette.bg};
+    `}
+  ${({ colorPalette }) =>
+    colorPalette &&
+    css`
+      color: ${colorPalette.txt};
+    `}
   align-items: center;
   justify-content: center;
   font-size: 1.4em;

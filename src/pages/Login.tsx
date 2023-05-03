@@ -202,7 +202,7 @@ const Login = ({ register }: { register?: boolean }) => {
                     <Input
                       placeholder="Nombre o Empresa"
                       name="name"
-                      onChange={onInputChangeHandler}
+                      onChange={(e) => onInputChangeHandler(e)}
                     />
                   </>
                 ) : null}
@@ -210,24 +210,23 @@ const Login = ({ register }: { register?: boolean }) => {
                   placeholder="Email"
                   type="email"
                   name="email"
-                  onChange={onInputChangeHandler}
+                  onChange={(e) => onInputChangeHandler(e)}
                 />
                 <PasswordInput
-                  placeholder="Contarseña"
+                  placeholder="Contraseña"
                   type="password"
                   name="password"
-                  onChange={onInputChangeHandler}
+                  onChange={(e) => onInputChangeHandler(e)}
                 />
               </LeftFormContent>
               <RightFormContent>
-                {register ? (
+                {register && (
                   <Input
                     placeholder="Teléfono"
-                    type="text"
                     name="phone"
-                    onChange={onInputChangeHandler}
+                    onChange={(e) => onInputChangeHandler(e)}
                   />
-                ) : null}
+                )}
               </RightFormContent>
             </InputsContainer>
             <>

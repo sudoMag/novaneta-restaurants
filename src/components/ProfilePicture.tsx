@@ -6,9 +6,14 @@ import { Letter } from "../utils/types/ProfileColorPallete";
 const ProfileFace = ({
   profile,
   id,
+  size
 }: {
   profile: Device<Letter[]>;
   id?: string;
+  size?: {
+    width: number,
+    height: number,
+  }
 }) => {
   const { pictureUrl, firstLetter } = useProfileImg(
     profile?.profileImg === "default" ? undefined : profile?.profileImg,
@@ -19,7 +24,7 @@ const ProfileFace = ({
     <>
       {pictureUrl && <ProfilePicture id={id} src={pictureUrl} />}
       {firstLetter && (
-        <LetterProfile id={id} colorPalette={firstLetter.palette}>
+        <LetterProfile id={id} colorPalette={firstLetter.palette} {...size}>
           {firstLetter.letter.toUpperCase()}
         </LetterProfile>
       )}

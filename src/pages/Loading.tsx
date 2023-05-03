@@ -44,7 +44,8 @@ const SpinnerSpace = styled.div`
 
 const Loading = () => {
   const { user, userData } = useContext(UserContext);
-  const { devices, nextDirect, thisDeviceInLocalStorage } = useContext(DeviceContext);
+  const { devices, nextDirect, thisDeviceInLocalStorage } =
+    useContext(DeviceContext);
   const [nextReady, setNextReady] = useState({
     userReady: false,
     animReady: false,

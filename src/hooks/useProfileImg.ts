@@ -45,6 +45,17 @@ const paletteForAlphabet: { [key in Letter]: ProfileColorPalette } = {
   "": colorPalette[0],
 };
 
+/**
+ * Custom hook that assigns a profile picture URL or first letter to a user based on the input provided.
+ *
+ * @param url A string representing the URL to the user's profile picture.
+ * @param props An optional object containing two properties: `letter` and `name`. `letter` is a string representing the user's initial letter, and `name` is an array of strings containing the user's name.
+ *
+ * @returns An object with three properties:
+ * - pictureUrl: a string representing the URL to the user's profile picture.
+ * - firstLetter: an object containing a `letter` property representing the user's initial letter, and a `palette` property representing the color palette for the letter.
+ * - assignPicture: a function that assigns a profile picture URL or first letter to the user based on the input provided.
+ */
 const useProfileImg = (
   url?: string,
   props?: { letter?: Letter; name?: Letter[] }

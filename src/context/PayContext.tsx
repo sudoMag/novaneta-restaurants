@@ -36,7 +36,7 @@ interface Pay {
   debts: Debt[];
   debtsInView: Debt[];
   addDebt: (cart: CartToClient, order: Order) => void;
-  successfulPayment: (typePayment: Debt["payType"],) => void;
+  successfulPayment: (typePayment: Debt["payType"]) => void;
   clients: DocumentData[];
   registNewClient: (client: {
     firstName: string;
@@ -56,7 +56,7 @@ export const PayContext = createContext<Pay>({
   debts: [],
   debtsInView: [],
   addDebt: (cart: CartToClient, order: Order) => {},
-  successfulPayment: (typePayment: Debt["payType"],) => {},
+  successfulPayment: (typePayment: Debt["payType"]) => {},
   clients: [],
   registNewClient: (client: {
     firstName: string;
@@ -89,6 +89,17 @@ export const PayContextProvider = ({
   const canceled = useRef(false);
   const Navigate = useNavigate();
 
+  /**
+   * Adds a new debt to the database based on the
+   * specified cart and order.
+   *
+   * @param {CartToClient} cart - The cart associated
+   * with the debt.
+   * @param {Order} order - The order associated with
+   * the debt.
+   *
+   * @returns void.
+   */
   const addDebt = (cart: CartToClient, order: Order) => {
     if (thisDevice) {
       addDoc(collection(db, `Users/${user?.uid}/Payments`), {
@@ -106,7 +117,22 @@ export const PayContextProvider = ({
     }
   };
 
-  const successfulPayment = (typePayment: Debt["payType"], deleteThisCart?: boolean) => {
+  /**
+   * Handles successful payment of debts using the
+   * specified payment type.
+   *
+   * @param {Debt["payType"]} typePayment - The
+   * payment type used to pay the debts.
+   * @param {boolean} [deleteThisCart] - Whether to
+   * delete the cart associated with the debts after
+   * payment.
+   *
+   * @returns void
+   */
+  const successfulPayment = (
+    typePayment: Debt["payType"],
+    deleteThisCart?: boolean
+  ) => {
     let totalAmount = 0;
     const paidDate = new Date();
 
