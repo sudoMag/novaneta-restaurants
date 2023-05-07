@@ -5,13 +5,20 @@ import { Letter } from "../../../../utils/types/ProfileColorPallete";
 import Device from "../../../../utils/types/Device";
 import { Container, EditIconButton, ProfileName } from "./AcountStyles";
 import ProfileFace from "../../../../components/ProfilePicture";
-import EditIcon from "../../../../icons/edit.svg"
+import EditIcon from "../../../../icons/edit.svg";
+import { UserContext } from "../../../../context/UserContext";
 
 const Acount = () => {
   const { thisDevice } = useContext(DeviceContext);
+  const { userData } = useContext(UserContext);
 
   return (
     <Container>
+      <Flex className="w-full items-center justify-center my-6">
+        <h1 className="capitalize font-bold text-xl">
+          {userData?.name}
+        </h1>
+      </Flex>
       <Flex className="w-full items-center justify-center my-6">
         <ProfileFace
           profile={thisDevice as Device<Letter[]>}
