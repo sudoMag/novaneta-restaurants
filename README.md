@@ -1,6 +1,9 @@
 <img src="./screenshoots/main.png" />
 
+<center>
+
 # <strong>NOVANETA</strong> <br> Software de Gestión para Restaurantes
+</center>
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
@@ -34,6 +37,5 @@ In the project directory, you can run:
 </ul>
 
 ## If you want to view this project in production, Click <strong>[HERE](https://novaneta-restaurants.vercel.app/)</strong> 👈.
-
 
 Also if you want to use my firebase env variables, then send me a mail at <m.casa2017@outlook.com>
